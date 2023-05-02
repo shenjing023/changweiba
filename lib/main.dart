@@ -1,5 +1,6 @@
 import 'package:changweiba/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,9 +8,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'api/base.dart';
 import 'models/auth.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  await initialization(null);
   initNetwork();
   runApp(const MyApp());
+}
+
+Future initialization(BuildContext? context) async {
+  await Future.delayed(const Duration(milliseconds: 3000));
 }
 
 class MyApp extends StatelessWidget {

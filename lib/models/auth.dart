@@ -13,3 +13,10 @@ class AuthController extends GetxController {
     update();
   }
 }
+
+class AuthResponse {
+  int code;
+  String message;
+  Map<String, String>? data;
+  AuthResponse(this.code, this.message, this.data);
+}

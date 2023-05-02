@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:graphql/client.dart';
 
 class GQLClient {
@@ -46,12 +47,6 @@ class GQLClient {
     );
   }
 
-  void _errorsLoger(List<GraphQLError>? errors) {
-    for (var error in errors!) {
-      print(error.message);
-    }
-  }
-
   // LinkError处理函数
   Stream<Response> onException(
     Request req,
@@ -60,19 +55,18 @@ class GQLClient {
   ) {
     if (exception is ServerException) {
       // 服务端错误
-      print(exception);
-      _errorsLoger(exception.parsedResponse?.errors);
+      debugPrint("server excaption: $exception");
+      // _errorsLoger(exception.parsedResponse?.errors);
     }
 
     if (exception is NetworkException) {
       // 网络错误
-      print(exception.toString());
+      debugPrint("network exception: $exception");
     }
 
     if (exception is HttpLinkParserException) {
       // http解析错误
-      print(exception.originalException);
-      print(exception.response);
+      debugPrint("http exception: $exception");
     }
 
     return _(req);
@@ -84,8 +78,10 @@ class GQLClient {
     Stream<Response> Function(Request) _,
     Response res,
   ) {
-    // print(res.errors);
-    _errorsLoger(res.errors); // 处理返回错误
+    // 处理返回错误
+    for (var error in res.errors!) {
+      debugPrint("gqlerror $error.message");
+    }
     return _(req);
   }
 }

@@ -12,7 +12,7 @@ class AppPages {
   static final routes = [
     GetPage(
         name: Routes.home,
-        page: () => HomePage(),
+        page: () => const HomePage(),
         transition: Transition.fadeIn,
         transitionDuration: const Duration(seconds: 1)),
     GetPage(

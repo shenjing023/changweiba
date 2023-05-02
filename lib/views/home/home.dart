@@ -1,8 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: key);
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -31,20 +30,20 @@ class _HomePageState extends State<HomePage> {
         ListTile(
           dense: true,
           contentPadding: const EdgeInsets.symmetric(horizontal: 7.0),
-          subtitle: Align(
+          subtitle: const Align(
+            alignment: Alignment(-1.1, 0),
             child: Text(
               "10秒前",
             ),
-            alignment: Alignment(-1.1, 0),
           ),
-          title: Align(
+          title: const Align(
+            alignment: Alignment(-1.1, 0),
             child: Text(
               "asdassadaSSSAD是的是的撒啊大撒",
               softWrap: false,
               maxLines: 1,
               style: TextStyle(fontSize: 14),
             ),
-            alignment: Alignment(-1.1, 0),
           ),
           leading: Container(
             width: 35,
@@ -52,12 +51,12 @@ class _HomePageState extends State<HomePage> {
             decoration: BoxDecoration(
                 color: Colors.indigoAccent,
                 borderRadius: BorderRadius.circular(5),
-                image: DecorationImage(
+                image: const DecorationImage(
                     image: NetworkImage(
                         "https://tse3-mm.cn.bing.net/th/id/OIP.iJyZTWUQ41RGdoVYjU-ARAHaE7?w=262&h=180&c=7&o=5&pid=1.7"),
                     fit: BoxFit.cover)),
           ),
-          trailing: Icon(Icons.more_vert),
+          trailing: const Icon(Icons.more_vert),
         ),
         Container(
           color: Colors.white70,
@@ -103,12 +102,12 @@ class _HomePageState extends State<HomePage> {
                       SliverAppBar(
                         pinned: true,
                         leading: IconButton(
-                          icon: Icon(Icons.view_headline_outlined),
+                          icon: const Icon(Icons.view_headline_outlined),
                           onPressed: () {
                             print("aaaaa");
                           },
                         ),
-                        title: isShowBlackTitle ? Text("肠胃吧") : Text(""),
+                        title: isShowBlackTitle ? const Text("肠胃吧") : const Text(""),
                         centerTitle: true, //标题是否居中
                         floating: false,
                         snap: false,
@@ -118,7 +117,7 @@ class _HomePageState extends State<HomePage> {
                         elevation: 0,
                         actions: <Widget>[
                           IconButton(
-                            icon: Icon(Icons.add),
+                            icon: const Icon(Icons.add),
                             onPressed: () {
                               print("add");
                             },
@@ -132,7 +131,7 @@ class _HomePageState extends State<HomePage> {
                               Image(
                                 fit: BoxFit.fill,
                                 image:
-                                    AssetImage("assets/images/home_header.jpg"),
+                                    const AssetImage("assets/images/home_header.jpg"),
                                 height: 200,
                                 width: MediaQuery.of(context).size.width,
                               ),
@@ -149,7 +148,7 @@ class _HomePageState extends State<HomePage> {
                                     print("object");
                                   },
                                   child: RichText(
-                                    text: TextSpan(children: [
+                                    text: const TextSpan(children: [
                                       TextSpan(
                                           text: "肠胃吧",
                                           style: TextStyle(
@@ -253,10 +252,10 @@ class SliverCustomHeaderDelegate extends SliverPersistentHeaderDelegate {
   });
 
   @override
-  double get minExtent => this.collapsedHeight + this.paddingTop;
+  double get minExtent => collapsedHeight + paddingTop;
 
   @override
-  double get maxExtent => this.expandedHeight;
+  double get maxExtent => expandedHeight;
 
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
@@ -264,7 +263,7 @@ class SliverCustomHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 
   Color makeStickyHeaderBgColor(double shrinkOffset) {
-    final int alpha = (shrinkOffset / (this.maxExtent - this.minExtent) * 255)
+    final int alpha = (shrinkOffset / (maxExtent - minExtent) * 255)
         .clamp(0, 255)
         .toInt();
     return Color.fromARGB(alpha, 255, 255, 255);
@@ -274,7 +273,7 @@ class SliverCustomHeaderDelegate extends SliverPersistentHeaderDelegate {
     if (shrinkOffset <= 50) {
       return isIcon ? Colors.white : Colors.transparent;
     } else {
-      final int alpha = (shrinkOffset / (this.maxExtent - this.minExtent) * 255)
+      final int alpha = (shrinkOffset / (maxExtent - minExtent) * 255)
           .clamp(0, 255)
           .toInt();
       return Color.fromARGB(alpha, 0, 0, 0);
@@ -285,8 +284,8 @@ class SliverCustomHeaderDelegate extends SliverPersistentHeaderDelegate {
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     // TODO: implement build
-    return Container(
-      height: this.maxExtent,
+    return SizedBox(
+      height: maxExtent,
       width: MediaQuery.of(context).size.width,
       child: Stack(
         fit: StackFit.expand,
@@ -296,7 +295,7 @@ class SliverCustomHeaderDelegate extends SliverPersistentHeaderDelegate {
             children: <Widget>[
               Image(
                 fit: BoxFit.fill,
-                image: AssetImage("assets/images/home_header.jpg"),
+                image: const AssetImage("assets/images/home_header.jpg"),
                 height: 200,
                 width: MediaQuery.of(context).size.width,
               ),
@@ -312,7 +311,7 @@ class SliverCustomHeaderDelegate extends SliverPersistentHeaderDelegate {
                     print("object");
                   },
                   child: RichText(
-                    text: TextSpan(children: [
+                    text: const TextSpan(children: [
                       TextSpan(
                           text: "肠胃吧",
                           style: TextStyle(
@@ -338,19 +337,18 @@ class SliverCustomHeaderDelegate extends SliverPersistentHeaderDelegate {
             right: 0,
             top: 0,
             child: Container(
-              color: this.makeStickyHeaderBgColor(shrinkOffset),
+              color: makeStickyHeaderBgColor(shrinkOffset),
               child: SafeArea(
                 bottom: false,
-                child: Container(
-                  height: this.collapsedHeight,
+                child: SizedBox(
+                  height: collapsedHeight,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       IconButton(
                           icon: Icon(
                             Icons.arrow_back,
-                            color: this
-                                .makeStickyHeaderTextColor(shrinkOffset, true),
+                            color: makeStickyHeaderTextColor(shrinkOffset, true),
                           ),
                           onPressed: () => Navigator.pop(context)),
                       Text(
@@ -358,14 +356,13 @@ class SliverCustomHeaderDelegate extends SliverPersistentHeaderDelegate {
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
-                            color: this.makeStickyHeaderTextColor(
+                            color: makeStickyHeaderTextColor(
                                 shrinkOffset, false)),
                       ),
                       IconButton(
                           icon: Icon(
                             Icons.add,
-                            color: this
-                                .makeStickyHeaderTextColor(shrinkOffset, true),
+                            color: makeStickyHeaderTextColor(shrinkOffset, true),
                           ),
                           onPressed: () {})
                     ],

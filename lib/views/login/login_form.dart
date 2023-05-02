@@ -1,10 +1,10 @@
-import 'dart:io';
-
+import 'package:changweiba/api/auth.dart';
 import 'package:changweiba/models/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'animated_text.dart';
 
@@ -27,29 +27,54 @@ class _LoginFormState extends State<LoginForm> {
   final formKey = GlobalKey<FormState>();
   final AuthController c = Get.find();
 
-  bool _isLoading = false;
-
   String label1 = "SignIn";
+
+  void saveAccountData(String username, String password, String accessToken,
+      String refreshToken) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString("username", username);
+    prefs.setString("password", password);
+    prefs.setString("accessToken", accessToken);
+    prefs.setString("refreshToken", refreshToken);
+  }
 
   test2() async {
     if (c.mode.value == AuthMode.signin) {
-      print("signin");
-      _isLoading = true;
+      debugPrint("signin");
       SmartDialog.showLoading();
-      await Future.delayed(const Duration(seconds: 2));
+      var response = await signIn(
+          widget.userController!.text, widget.passwordController!.text);
       SmartDialog.dismiss();
-      // label1 = "SignIn...";
-      // c.loadingLabel.value = "SignIn...";
-      await Future.delayed(Duration(seconds: 10));
-      _isLoading = false;
-      // c.loadingLabel.value = "SignIn";
+      if (response!.code == 200) {
+        // print
+        debugPrint(response.data.toString());
+        saveAccountData(
+            widget.userController!.text,
+            widget.passwordController!.text,
+            response.data!["accessToken"]!,
+            response.data!["refreshToken"]!);
+        Get.offNamed("/");
+      } else {
+        SmartDialog.showToast(response.message);
+      }
     } else {
-      print("signup");
-      // c.loadingLabel.value = "SignUp...";
-      _isLoading = true;
-      await Future.delayed(Duration(seconds: 10));
-      _isLoading = false;
-      // c.loadingLabel.value = "SignUp";
+      debugPrint("signup");
+      SmartDialog.showLoading();
+      var response = await signUp(
+          widget.userController!.text, widget.passwordController!.text);
+      SmartDialog.dismiss();
+      if (response!.code == 200) {
+        // print
+        debugPrint(response.data.toString());
+        saveAccountData(
+            widget.userController!.text,
+            widget.passwordController!.text,
+            response.data!["accessToken"]!,
+            response.data!["refreshToken"]!);
+        Get.offNamed("/");
+      } else {
+        SmartDialog.showToast(response.message);
+      }
     }
   }
 
@@ -124,120 +149,8 @@ class _LoginFormState extends State<LoginForm> {
                     ),
                   ),
                 ),
-                // child: ButtonTheme(
-                //     height: 80.h,
-                //     shape: RoundedRectangleBorder(
-                //         borderRadius: BorderRadius.circular(3),
-                //         side: const BorderSide(
-                //           width: 5,
-                //           color: Color.fromARGB(0, 27, 27, 26),
-                //         )),
-                //     child: TextButton(
-                //       style: ButtonStyle(
-                //           shape: MaterialStateProperty.all(
-                //               RoundedRectangleBorder(
-                //                   borderRadius: BorderRadius.circular(3),
-                //                   side: const BorderSide(
-                //                     width: 5,
-                //                     color: Color.fromARGB(0, 27, 27, 26),
-                //                   ))),
-                //           foregroundColor:
-                //               MaterialStateProperty.resolveWith((states) {
-                //             return states.contains(MaterialState.pressed)
-                //                 ? const Color.fromARGB(255, 108, 118, 126)
-                //                 : Colors.red;
-                //           }),
-                //           elevation: MaterialStateProperty.all(0),
-                //           backgroundColor: MaterialStateProperty.all(
-                //             Colors.transparent,
-                //           )),
-                //       onPressed: !_isLoading ? () => c.switchAuth() : null,
-                //       child: GetBuilder<AuthController>(
-                //         init: c,
-                //         builder: (_) => AnimatedText(
-                //           text: c.mode.value == AuthMode.signin
-                //               ? 'SignIn'
-                //               : 'SignUp',
-                //           textRotation: AnimatedTextRotation.up,
-                //           style: TextStyle(
-                //             color: !_isLoading ? Colors.black : Colors.grey,
-                //             fontSize: 30,
-                //           ),
-                //         ),
-                //       ),
-                //     )
-                //   )
               ),
             ),
-            // child: ElevatedButton(
-            //   style: ButtonStyle(
-            //       padding: MaterialStateProperty.all(
-            //           const EdgeInsets.fromLTRB(25, 15, 25, 15)),
-            //       side: MaterialStateProperty.all(const BorderSide(
-            //           width: 2, color: Color.fromARGB(222, 222, 222, 22))),
-            //       // padding: const MaterialStateProperty.symmetric(
-            //       //     horizontal: 30.0, vertical: 8.0),
-            //       foregroundColor:
-            //           MaterialStateProperty.resolveWith((states) {
-            //         return states.contains(MaterialState.pressed)
-            //             ? Colors.blue
-            //             : Colors.red;
-            //       })),
-            //   onPressed: !_isLoading ? () => c.switchAuth() : null,
-            //   child: GetBuilder<AuthController>(
-            //     init: c,
-            //     builder: (_) => AnimatedText(
-            //       text: c.mode.value == AuthMode.signin ? 'SignIn' : 'SignUp',
-            //       textRotation: AnimatedTextRotation.up,
-            //       style: TextStyle(
-            //         color: !_isLoading ? Colors.black : Colors.grey,
-            //         fontSize: 30,
-            //       ),
-            //     ),
-            //   ),
-            // ),
-            // child: ArgonButton(
-            //     height: 80.h,
-            //     width: 300.w,
-            //     // minWidth: 180.w,
-            //     borderSide: BorderSide(
-            //         color: Color.fromARGB(255, 110, 65, 65), width: 5),
-            //     borderRadius: 3,
-            //     roundLoadingShape: true,
-            //     color: Colors.transparent,
-            //     elevation: 0,
-            //     loader: const SpinKitFadingCircle(
-            //       color: Colors.black,
-            //     ),
-            //     onTap: (startLoading, stopLoading, btnState) async {
-            //       final isValid = formKey.currentState!.validate();
-            //       if (isValid) {
-            //         setState(() {
-            //           _isLoading = true;
-            //         });
-            //         if (btnState == ButtonState.Idle) {
-            //           startLoading();
-            //           // await widget.onRequest!();
-            //           // stopLoading();
-            //         }
-            //         setState(() {
-            //           _isLoading = false;
-            //         });
-            //       }
-            //     },
-            //     child: GetBuilder<AuthController>(
-            //       init: c,
-            //       builder: (_) => AnimatedText(
-            //         text:
-            //             c.mode.value == AuthMode.signin ? 'SignIn' : 'SignUp',
-            //         textRotation: AnimatedTextRotation.down,
-            //         style: const TextStyle(
-            //           color: Colors.black,
-            //           fontSize: 25,
-            //         ),
-            //       ),
-            //     )),
-            // ),
             SizedBox(
               height: 10.h,
             ),
