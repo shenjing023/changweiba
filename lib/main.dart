@@ -1,23 +1,41 @@
+import 'package:changweiba/api/auth.dart';
 import 'package:changweiba/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'api/base.dart';
 import 'models/auth.dart';
+import 'utils/shared_preferences.dart';
 
+// debug cmd
+// flutter run -d chrome --web-hostname localhost --web-port 5050
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  await initialization(null);
   initNetwork();
+  WidgetsFlutterBinding.ensureInitialized();
+  await initialization(null);
+
   runApp(const MyApp());
 }
 
 Future initialization(BuildContext? context) async {
-  await Future.delayed(const Duration(milliseconds: 3000));
+  await Storage().init();
+  String? rToken = Storage().prefs.getString("refreshToken");
+  if (rToken != null) {
+    var response = await refreshAuthToken(rToken);
+    if (response!.code == 200) {
+      Storage().prefs.setString("accessToken", response.data!["accessToken"]!);
+      Storage()
+          .prefs
+          .setString("refreshToken", response.data!["refreshToken"]!);
+      Storage().prefs.setBool("isAuthenticated", true);
+    } else {
+      Storage().prefs.setBool("isAuthenticated", false);
+    }
+  } else {
+    Storage().prefs.setBool("isAuthenticated", false);
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -26,12 +44,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    bool isAuthenticated = Storage().prefs.getBool("isAuthenticated") ?? false;
     // put authController here
     Get.lazyPut(() => AuthController());
     return ScreenUtilInit(
         designSize: const Size(750, 1334),
         builder: (context, child) => GetMaterialApp(
               title: '肠胃吧',
+              debugShowCheckedModeBanner: false,
               theme: ThemeData(
                 // This is the theme of your application.
                 //
@@ -44,7 +64,7 @@ class MyApp extends StatelessWidget {
                 // is not restarted.
                 primarySwatch: Colors.blue,
               ),
-              initialRoute: Routes.login,
+              initialRoute: isAuthenticated ? Routes.home : Routes.login,
               getPages: AppPages.routes,
               builder: FlutterSmartDialog.init(),
               navigatorObservers: [FlutterSmartDialog.observer],

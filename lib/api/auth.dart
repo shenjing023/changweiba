@@ -1,80 +1,8 @@
 import 'package:changweiba/models/auth.dart';
-import 'package:flutter/foundation.dart';
 
 import 'graphql.dart';
 import 'package:get_it/get_it.dart';
 import 'package:graphql/client.dart';
-
-// class AuthGQLClient {
-//   late GraphQLClient client;
-//   late HttpLink http
-//   late AuthLink authLink;
-//   late ErrorLink errorLink;
-
-//   AuthGQLClient._internal() {
-//     httpLink = HttpLink(domain);
-//     errorLink = ErrorLink(
-//       onGraphQLError: onGraphQLError,
-//       onException: onException,
-//     );
-//     client = GraphQLClient(
-//       link: Link.from([
-//         DedupeLink(), // 请求去重
-//         errorLink,
-//         // authLink,
-//         httpLink,
-//       ]),
-//       cache: GraphQLCache(),
-//     );
-//   }
-
-//   factory AuthGQLClient() => _instance;
-
-//   static final AuthGQLClient _instance = AuthGQLClient._internal();
-
-//   // GraphqlError
-//   Stream<Response> onGraphQLError(
-//     Request req,
-//     Stream<Response> Function(Request) _,
-//     Response res,
-//   ) {
-//     // 处理返回错误
-//     for (var error in res.errors!) {
-//       print("gqlerror $error.message");
-//     }
-//     return _(req);
-//   }
-
-//   Future<AuthResponse> signUp(String username, String password) async {
-//     const signUpStr = r'''
-//     mutation SignUp($username:String!,$password:String!){
-//       action: signUp(input:{name:$username,password:$password}){
-//         accessToken,
-//         refreshToken
-//       }
-//     }
-//   ''';
-//   final MutationOptions options =
-//       MutationOptions(
-//         document: gql(signUpStr),
-//         variables: <String, String>{
-//           'username': username,
-//           'password': password,
-//         },
-//         onError: (error) => print(error),
-//   );
-
-//   final QueryResult result = await client.mutate(options);
-
-//   if (result.hasException) {
-//     SmartDialog.showToast('test toast');
-//     print("exception1 $result.exception.toString()");
-//     return;
-//   }
-
-//   return result;
-//   }
-// }
 
 Future<AuthResponse?> signUp(String username, String password) async {
   const signUpStr = r'''
@@ -153,15 +81,18 @@ Future<AuthResponse?> signIn(String username, String password) async {
   return authResponse;
 }
 
-Future<AuthResponse?> getAccessToken(String refreshToken) async {
-  const getAccessTokenStr = r'''
-    mutation GetAccessToken($refreshToken:String!){
-      action: getAccessToken(input:{name:$refreshToken})
+Future<AuthResponse?> refreshAuthToken(String refreshToken) async {
+  const refreshAuthTokenStr = r'''
+    mutation RefreshAuthToken($refreshToken:String!){
+      action: refreshAuthToken(input:$refreshToken){
+        accessToken,
+        refreshToken
+      }
     }
   ''';
   AuthResponse authResponse = AuthResponse(200, "", null);
   final MutationOptions options = MutationOptions(
-    document: gql(getAccessTokenStr),
+    document: gql(refreshAuthTokenStr),
     variables: <String, String>{
       'refreshToken': refreshToken,
     },

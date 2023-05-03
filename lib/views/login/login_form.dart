@@ -1,10 +1,11 @@
 import 'package:changweiba/api/auth.dart';
 import 'package:changweiba/models/auth.dart';
+import 'package:changweiba/routes.dart';
+import 'package:changweiba/utils/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'animated_text.dart';
 
@@ -27,15 +28,12 @@ class _LoginFormState extends State<LoginForm> {
   final formKey = GlobalKey<FormState>();
   final AuthController c = Get.find();
 
-  String label1 = "SignIn";
-
   void saveAccountData(String username, String password, String accessToken,
       String refreshToken) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString("username", username);
-    prefs.setString("password", password);
-    prefs.setString("accessToken", accessToken);
-    prefs.setString("refreshToken", refreshToken);
+    Storage().prefs.setString("username", username);
+    Storage().prefs.setString("password", password);
+    Storage().prefs.setString("accessToken", accessToken);
+    Storage().prefs.setString("refreshToken", refreshToken);
   }
 
   test2() async {
@@ -53,7 +51,7 @@ class _LoginFormState extends State<LoginForm> {
             widget.passwordController!.text,
             response.data!["accessToken"]!,
             response.data!["refreshToken"]!);
-        Get.offNamed("/");
+        Get.offNamed(Routes.home);
       } else {
         SmartDialog.showToast(response.message);
       }
@@ -71,7 +69,7 @@ class _LoginFormState extends State<LoginForm> {
             widget.passwordController!.text,
             response.data!["accessToken"]!,
             response.data!["refreshToken"]!);
-        Get.offNamed("/");
+        Get.offNamed(Routes.home);
       } else {
         SmartDialog.showToast(response.message);
       }
