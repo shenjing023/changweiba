@@ -33,6 +33,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.11.0"
+  badges:
+    dependency: "direct main"
+    description:
+      name: badges
+      sha256: "6e7f3ec561ec08f47f912cfe349d4a1707afdc8dda271e17b046aa6d42c89e77"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.1.1"
   boolean_selector:
     dependency: transitive
     description:
@@ -150,6 +158,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.2.19"
+  flutter_polygon:
+    dependency: "direct main"
+    description:
+      name: flutter_polygon
+      sha256: c10c39b31c96c8ec5cd7f93bee07659e0e306f4af9d6139a30e3769acea9cc5d
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.3.0+2"
   flutter_screenutil:
     dependency: "direct main"
     description:
@@ -328,6 +344,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.6.7"
+  k_chart:
+    dependency: "direct main"
+    description:
+      name: k_chart
+      sha256: c3c43552a4e4eace74607841f0806701775bcc6ef8268555e70a93ee5ed35afa
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.7.0"
   lints:
     dependency: transitive
     description:
@@ -416,6 +440,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "5.4.0"
+  pigment:
+    dependency: transitive
+    description:
+      name: pigment
+      sha256: b8c56059e21ecb9379a304c78a4f20e399d41e54384a7f64de21103b4b5c38dd
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.4"
   platform:
     dependency: transitive
     description:
@@ -565,6 +597,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.5.2"
+  tinycolor2:
+    dependency: "direct main"
+    description:
+      name: tinycolor2
+      sha256: "81850c32ac8d4dcff37299bf3e52bcad4f4db6bc73d4b06727c9922de3766390"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.1"
   typed_data:
     dependency: transitive
     description:

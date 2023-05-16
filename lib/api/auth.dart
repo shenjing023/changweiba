@@ -1,4 +1,5 @@
 import 'package:changweiba/models/auth.dart';
+import 'package:flutter/material.dart';
 
 import 'graphql.dart';
 import 'package:get_it/get_it.dart';
@@ -33,9 +34,15 @@ Future<AuthResponse?> signUp(String username, String password) async {
   final QueryResult result = await gqlClient.client.mutate(options);
 
   if (result.hasException) {
-    for (var e in result.exception!.graphqlErrors) {
-      authResponse.code = e.extensions!["code"];
-      authResponse.message = e.message;
+    debugPrint("exception: $result");
+    if (result.exception!.graphqlErrors.isEmpty) {
+      authResponse.code = 500;
+      authResponse.message = "server internal error";
+    } else {
+      for (var e in result.exception!.graphqlErrors) {
+        authResponse.code = e.extensions!["code"];
+        authResponse.message = e.message;
+      }
     }
   } else {
     authResponse.data = {
@@ -68,9 +75,15 @@ Future<AuthResponse?> signIn(String username, String password) async {
   final QueryResult result = await gqlClient.client.mutate(options);
 
   if (result.hasException) {
-    for (var e in result.exception!.graphqlErrors) {
-      authResponse.code = e.extensions!["code"];
-      authResponse.message = e.message;
+    debugPrint("exception: $result");
+    if (result.exception!.graphqlErrors.isEmpty) {
+      authResponse.code = 500;
+      authResponse.message = "server internal error";
+    } else {
+      for (var e in result.exception!.graphqlErrors) {
+        authResponse.code = e.extensions!["code"];
+        authResponse.message = e.message;
+      }
     }
   } else {
     authResponse.data = {
@@ -102,9 +115,15 @@ Future<AuthResponse?> refreshAuthToken(String refreshToken) async {
   final QueryResult result = await gqlClient.client.mutate(options);
 
   if (result.hasException) {
-    for (var e in result.exception!.graphqlErrors) {
-      authResponse.code = e.extensions!["code"];
-      authResponse.message = e.message;
+    debugPrint("exception: $result");
+    if (result.exception!.graphqlErrors.isEmpty) {
+      authResponse.code = 500;
+      authResponse.message = "server internal error";
+    } else {
+      for (var e in result.exception!.graphqlErrors) {
+        authResponse.code = e.extensions!["code"];
+        authResponse.message = e.message;
+      }
     }
   } else {
     authResponse.data = {

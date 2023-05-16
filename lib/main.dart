@@ -64,7 +64,7 @@ class MyApp extends StatelessWidget {
                 // is not restarted.
                 primarySwatch: Colors.blue,
               ),
-              initialRoute: isAuthenticated ? Routes.home : Routes.login,
+              initialRoute: isAuthenticated ? Routes.login : Routes.home,
               getPages: AppPages.routes,
               builder: FlutterSmartDialog.init(),
               navigatorObservers: [FlutterSmartDialog.observer],
