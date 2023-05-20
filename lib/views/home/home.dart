@@ -7,8 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:changweiba/widget/rolling_nav_bar.dart';
 import 'package:get/get.dart';
 
-import '../../widget/never_overscroll_indicator.dart';
-import '../search/search.dart';
 import '../watchlist/watchlist.dart';
 
 double scaledHeight(BuildContext context, double baseSize) {

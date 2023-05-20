@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 // import 'views/home/home.dart';
 import 'views/login/login.dart';
 import 'views/chart/k_chart.dart';
-import 'views/home/home3.dart';
+import 'views/home/home.dart';
 import 'views/search/search.dart';
 
 abstract class Routes {
