@@ -593,10 +593,11 @@ class _RollingNavBarInnerState extends State<_RollingNavBarInner>
         ? ((double x) => x + (tabChunkWidth / 2) - indicatorRadius)
         : ((double x) => maxWidth - x - indicatorRadius);
     return Container(
+      // color: Colors.yellow,
       height: widget.height,
       decoration: widget.navBarDecoration ??
           BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).primaryColor,
           ),
       child: Stack(
         children: <Widget>[

@@ -31,7 +31,11 @@ Future<AuthResponse?> signUp(String username, String password) async {
   );
 
   var gqlClient = GetIt.I.get<GQLClient>();
-  final QueryResult result = await gqlClient.client.mutate(options);
+
+  final QueryResult result = await gqlClient.mutate(
+    options,
+    onTimeout: () => throw Exception("request timeout"),
+  );
 
   if (result.hasException) {
     debugPrint("exception: $result");
@@ -72,7 +76,10 @@ Future<AuthResponse?> signIn(String username, String password) async {
   );
 
   var gqlClient = GetIt.I.get<GQLClient>();
-  final QueryResult result = await gqlClient.client.mutate(options);
+  final QueryResult result = await gqlClient.mutate(
+    options,
+    onTimeout: () => throw Exception("request timeout"),
+  );
 
   if (result.hasException) {
     debugPrint("exception: $result");

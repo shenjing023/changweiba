@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get_navigation/src/router_report.dart';
 
 import 'api/base.dart';
+import 'common/style/style.dart';
+import 'common/utils/common_utils.dart';
 import 'models/auth.dart';
 import 'utils/shared_preferences.dart';
 
@@ -52,22 +55,38 @@ class MyApp extends StatelessWidget {
         builder: (context, child) => GetMaterialApp(
               title: '肠胃吧',
               debugShowCheckedModeBanner: false,
-              theme: ThemeData(
-                // This is the theme of your application.
-                //
-                // Try running your application with "flutter run". You'll see the
-                // application has a blue toolbar. Then, without quitting the app, try
-                // changing the primarySwatch below to Colors.green and then invoke
-                // "hot reload" (press "r" in the console where you ran "flutter run",
-                // or simply save your changes to "hot reload" in a Flutter IDE).
-                // Notice that the counter didn't reset back to zero; the application
-                // is not restarted.
-                primarySwatch: Colors.blue,
-              ),
-              initialRoute: isAuthenticated ? Routes.login : Routes.home,
+              theme: CommonUtils.getThemeData(CWColors.primarySwatch),
+              // theme: ThemeData(
+              //   // This is the theme of your application.
+              //   //
+              //   // Try running your application with "flutter run". You'll see the
+              //   // application has a blue toolbar. Then, without quitting the app, try
+              //   // changing the primarySwatch below to Colors.green and then invoke
+              //   // "hot reload" (press "r" in the console where you ran "flutter run",
+              //   // or simply save your changes to "hot reload" in a Flutter IDE).
+              //   // Notice that the counter didn't reset back to zero; the application
+              //   // is not restarted.
+              //   primarySwatch: Colors.green,
+              // ),
+              initialRoute: isAuthenticated ? Routes.home : Routes.login,
               getPages: AppPages.routes,
               builder: FlutterSmartDialog.init(),
-              navigatorObservers: [FlutterSmartDialog.observer],
+              navigatorObservers: [
+                FlutterSmartDialog.observer,
+                GetXRouterObserver()
+              ],
             ));
+  }
+}
+
+class GetXRouterObserver extends NavigatorObserver {
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    RouterReportManager.reportCurrentRoute(route);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) async {
+    RouterReportManager.reportRouteDispose(route);
   }
 }

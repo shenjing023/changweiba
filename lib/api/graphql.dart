@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:graphql/client.dart';
 
@@ -83,5 +85,16 @@ class GQLClient {
       debugPrint("gqlerror $error.message");
     }
     return _(req);
+  }
+
+  Future<QueryResult> mutate(MutationOptions options,
+      {timeout = const Duration(seconds: 10),
+      FutureOr<QueryResult<Object?>> Function()? onTimeout}) async {
+    if (timeout > 0) {
+      return await client
+          .mutate(options)
+          .timeout(timeout, onTimeout: onTimeout);
+    }
+    return await client.mutate(options);
   }
 }

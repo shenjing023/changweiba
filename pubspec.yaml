@@ -51,6 +51,9 @@ dependencies:
   badges: ^3.1.1
   flutter_polygon: ^0.3.0+2
   tinycolor2: ^3.0.1
+  flare_flutter: ^3.0.2
+  intl: ^0.18.1
+  common_utils: ^2.1.0
 
 dev_dependencies:
   flutter_test:

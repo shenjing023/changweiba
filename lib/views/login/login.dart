@@ -2,9 +2,12 @@ import 'package:changweiba/api/auth.dart';
 import 'package:changweiba/views/login/background.dart';
 import 'package:changweiba/views/login/responsive.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 
+import '../../models/auth.dart';
+import '../../routes.dart';
+import '../../utils/shared_preferences.dart';
 import 'login_form.dart';
 import 'login_header.dart';
 
@@ -20,40 +23,58 @@ class _LoginPageState extends State<LoginPage>
   final controller = ScrollController();
 
   /// signUpUserFromController
-  final signUpUFController = TextEditingController();
+  late TextEditingController userFormController;
 
   /// signUpPasswordFromController
-  final signUpPFController = TextEditingController();
+  late TextEditingController passwordFormController;
 
-  /// signInUserFromController
-  final signInUFController = TextEditingController();
+  final AuthController c = Get.find();
 
-  /// signInPasswordFromController
-  final signInPFController = TextEditingController();
-
-  Future<void> _onSignUpPressed() async {
-    try {
-      signUp(signUpUFController.text, signUpPFController.text);
-      Get.offNamed("/");
-    } catch (e) {
-      print(e);
-    }
+  @override
+  void initState() {
+    super.initState();
+    String? user = Storage().prefs.getString("username");
+    String? password = Storage().prefs.getString("password");
+    userFormController =
+        TextEditingController.fromValue(TextEditingValue(text: user ?? ""));
+    passwordFormController =
+        TextEditingController.fromValue(TextEditingValue(text: password ?? ""));
   }
 
-  Future<void> _onSignInPressed() async {
-    // final isValid = signInFormKey.currentState!.validate();
-    // if (isValid) {
-    if (signInUFController.text.length == 5) {
-      Fluttertoast.showToast(
-          msg: "This is Center Short Toast",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          timeInSecForIosWeb: 1,
-          backgroundColor: const Color.fromARGB(255, 151, 117, 114),
-          textColor: Colors.white,
-          fontSize: 16.0);
+  void saveAccountData(String username, String password, String accessToken,
+      String refreshToken) async {
+    Storage().prefs.setString("username", username);
+    Storage().prefs.setString("password", password);
+    Storage().prefs.setString("accessToken", accessToken);
+    Storage().prefs.setString("refreshToken", refreshToken);
+  }
+
+  Future<dynamic> onRequest() async {
+    Future<AuthResponse?> Function(String, String) func;
+    if (c.mode.value == AuthMode.signin) {
+      func = signIn;
+    } else {
+      func = signUp;
     }
-    // }
+
+    SmartDialog.showLoading();
+    try {
+      var response =
+          await func(userFormController.text, passwordFormController.text);
+      SmartDialog.dismiss();
+      if (response!.code == 200) {
+        // print
+        debugPrint(response.data.toString());
+        saveAccountData(userFormController.text, passwordFormController.text,
+            response.data!["accessToken"]!, response.data!["refreshToken"]!);
+        Get.offNamed(Routes.home);
+      } else {
+        SmartDialog.showToast(response.message);
+      }
+    } catch (e) {
+      SmartDialog.dismiss();
+      SmartDialog.showToast(e.toString());
+    }
   }
 
   @override
@@ -79,9 +100,9 @@ class _LoginPageState extends State<LoginPage>
             Expanded(
               flex: 8,
               child: LoginForm(
-                userController: signUpUFController,
-                passwordController: signUpPFController,
-                onRequest: _onSignUpPressed,
+                userController: userFormController,
+                passwordController: passwordFormController,
+                onRequest: onRequest,
               ),
             ),
             const Spacer(),
@@ -101,9 +122,9 @@ class _LoginPageState extends State<LoginPage>
           SizedBox(
             width: 450,
             child: LoginForm(
-              userController: signUpUFController,
-              passwordController: signUpPFController,
-              onRequest: _onSignUpPressed,
+              userController: userFormController,
+              passwordController: passwordFormController,
+              onRequest: onRequest,
             ),
           )
         ],

@@ -1,11 +1,7 @@
-import 'package:changweiba/api/auth.dart';
 import 'package:changweiba/models/auth.dart';
-import 'package:changweiba/routes.dart';
-import 'package:changweiba/utils/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 import 'animated_text.dart';
 
@@ -27,54 +23,6 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   final formKey = GlobalKey<FormState>();
   final AuthController c = Get.find();
-
-  void saveAccountData(String username, String password, String accessToken,
-      String refreshToken) async {
-    Storage().prefs.setString("username", username);
-    Storage().prefs.setString("password", password);
-    Storage().prefs.setString("accessToken", accessToken);
-    Storage().prefs.setString("refreshToken", refreshToken);
-  }
-
-  test2() async {
-    if (c.mode.value == AuthMode.signin) {
-      debugPrint("signin");
-      SmartDialog.showLoading();
-      var response = await signIn(
-          widget.userController!.text, widget.passwordController!.text);
-      SmartDialog.dismiss();
-      if (response!.code == 200) {
-        // print
-        debugPrint(response.data.toString());
-        saveAccountData(
-            widget.userController!.text,
-            widget.passwordController!.text,
-            response.data!["accessToken"]!,
-            response.data!["refreshToken"]!);
-        Get.offNamed(Routes.home);
-      } else {
-        SmartDialog.showToast(response.message);
-      }
-    } else {
-      debugPrint("signup");
-      SmartDialog.showLoading();
-      var response = await signUp(
-          widget.userController!.text, widget.passwordController!.text);
-      SmartDialog.dismiss();
-      if (response!.code == 200) {
-        // print
-        debugPrint(response.data.toString());
-        saveAccountData(
-            widget.userController!.text,
-            widget.passwordController!.text,
-            response.data!["accessToken"]!,
-            response.data!["refreshToken"]!);
-        Get.offNamed(Routes.home);
-      } else {
-        SmartDialog.showToast(response.message);
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,7 +81,11 @@ class _LoginFormState extends State<LoginForm> {
                       backgroundColor: MaterialStateProperty.all(
                         Colors.transparent,
                       )),
-                  onPressed: test2,
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      widget.onRequest!();
+                    }
+                  },
                   child: GetBuilder<AuthController>(
                     init: c,
                     builder: (_) => AnimatedText(

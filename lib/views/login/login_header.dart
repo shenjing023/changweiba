@@ -11,22 +11,27 @@ class TopImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        const SizedBox(height: defaultPadding),
         const Text(
           "消灭权限暴政，世界属于肠胃",
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+          style: TextStyle(
+              fontWeight: FontWeight.bold, color: Colors.green, fontSize: 20),
         ),
-        const SizedBox(height: defaultPadding * 2),
         Row(
           children: [
             const Spacer(),
             Expanded(
-              flex: 8,
-              child: SvgPicture.asset("assets/icons/login.svg"),
+              flex: 3,
+              child: SvgPicture.asset(
+                "assets/icons/login.svg",
+                height: 300,
+                width: 300,
+              ),
             ),
             const Spacer(),
           ],
         ),
-        const SizedBox(height: defaultPadding * 2),
+        const SizedBox(height: defaultPadding),
       ],
     );
   }

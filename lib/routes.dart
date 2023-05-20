@@ -3,12 +3,14 @@ import 'package:get/get.dart';
 // import 'views/home/home.dart';
 import 'views/login/login.dart';
 import 'views/chart/k_chart.dart';
-import 'views/home/home2.dart';
+import 'views/home/home3.dart';
+import 'views/search/search.dart';
 
 abstract class Routes {
   static const home = '/';
   static const login = '/login';
   static const chart = '/chart';
+  static const search = '/search';
 }
 
 class AppPages {
@@ -25,6 +27,12 @@ class AppPages {
     GetPage(
       name: Routes.chart,
       page: () => const KChartPage(),
+    ),
+    GetPage(
+      name: Routes.search,
+      page: () => const SearchPage(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 100),
     ),
   ];
 }
