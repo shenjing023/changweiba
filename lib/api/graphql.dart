@@ -7,7 +7,7 @@ class GQLClient {
   // final String source;
   final String uri;
   // final String token;
-  final Map<String, String> header;
+  final Map<String, String>? header;
 
   late HttpLink httpLink;
   late AuthLink authLink;
@@ -22,14 +22,19 @@ class GQLClient {
     // required this.source,
     required this.uri,
     //this.token,
-    this.header = const {},
+    this.header,
   }) {
     // 设置url，复写传入header
     // httpLink = HttpLink(uri, defaultHeaders: {
     //   sourceKey: source,
     //   ...header,
     // });
-    httpLink = HttpLink(uri);
+    if (header != null) {
+      httpLink = HttpLink(uri, defaultHeaders: header!);
+    } else {
+      httpLink = HttpLink(uri);
+    }
+
     // 通过复写getToken动态设置auth
     //authLink = AuthLink(getToken: getToken, headerKey: authHeaderKey);
     // 错误拦截
@@ -88,13 +93,36 @@ class GQLClient {
   }
 
   Future<QueryResult> mutate(MutationOptions options,
-      {timeout = const Duration(seconds: 10),
+      {int timeout = 10,
       FutureOr<QueryResult<Object?>> Function()? onTimeout}) async {
     if (timeout > 0) {
       return await client
           .mutate(options)
-          .timeout(timeout, onTimeout: onTimeout);
+          .timeout(Duration(seconds: timeout), onTimeout: onTimeout);
     }
     return await client.mutate(options);
+  }
+
+  Future<QueryResult> query(QueryOptions options,
+      {int timeout = 10,
+      FutureOr<QueryResult<Object?>> Function()? onTimeout}) async {
+    if (timeout > 0) {
+      return await client
+          .query(options)
+          .timeout(Duration(seconds: timeout), onTimeout: onTimeout);
+    }
+    return await client.query(options);
+  }
+
+  void setHeader(String key, String value) {
+    httpLink = HttpLink(uri, defaultHeaders: {key: value});
+    client = GraphQLClient(
+      link: Link.from([
+        DedupeLink(),
+        errorLink,
+        httpLink,
+      ]),
+      cache: GraphQLCache(),
+    );
   }
 }

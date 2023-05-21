@@ -192,10 +192,10 @@ class _AppBarSearchState extends State<AppBarSearch> {
                         //     borderRadius: BorderRadius.all(Radius.circular(5)),
                         //     borderSide: BorderSide(color: Colors.green)),
                         focusedBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
                             borderSide: BorderSide(color: Colors.lightGreen)),
                         enabledBorder: const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
                             borderSide: BorderSide(color: Colors.white)),
                         hintText: widget.hintText ?? '请输入关键字',
                         hintStyle:

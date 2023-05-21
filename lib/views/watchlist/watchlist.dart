@@ -3,8 +3,10 @@ import 'dart:math';
 import 'package:changweiba/models/stock.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 
+import '../../api/stock.dart';
 import '../../models/pull_load.dart';
 import '../../widget/pull_load_widget.dart';
 import 'stock_item.dart';
@@ -36,46 +38,80 @@ class _WatchlistPageState extends State<WatchlistPage> {
   void initState() {
     super.initState();
 
-    List<StockItem> testData = [
-      StockItem("华钰矿业", "SH600221",
-          latestPrice: 1.56, riseFallRate: 1, bull: -2),
-      StockItem("大唐发电", "SH601123",
-          latestPrice: 12.56, riseFallRate: -1, bull: -2),
-      // StockItem("国电电力", "SH300103", 12.56, 3.9, 2),
-      // StockItem("锦江酒店", "SZ300323", 12.56, -3.9, 1),
-      // StockItem("中青旅", "SH300123", 120.56, -3.9, 0),
-      // StockItem("三变科技", "SH300123", 12.16, -3.9, 1),
-      // StockItem("中国国航", "SZ310113", 2.56, -3.9, -2),
-      // StockItem("春秋航空", "SH320123", 12.56, -3.9, -1),
-      // StockItem("中国核电", "SH300123", 12.56, -3.9, 1),
-      // StockItem("360", "SH300123  ", 12.56, 0, 0),
-      // StockItem("华钰矿业", "SH600221", 12.56, -3.9, -2),
-      // StockItem("大唐发电", "SH601123", 12.56, -3.9, -1),
-      // StockItem("国电电力", "SH300103", 12.56, 3.9, 2),
-      // StockItem("锦江酒店", "SZ300323", 12.56, -3.9, 1),
-      // StockItem("中青旅", "SH300123", 120.56, -3.9, 2),
-      // StockItem("三变科技", "SH300123", 12.16, -3.9, -1),
-      // StockItem("中国国航", "SZ310113", 2.56, -3.9, 0),
-      // StockItem("春秋航空", "SH320123", 12.56, -3.9, -2),
-      // StockItem("中国核电", "SH300123", 12.56, -3.9, 1),
-      // StockItem("360", "SH300123  ", 12.56, 0, 2),
-    ];
+    // List<StockItem> testData = [
+    //   StockItem("华钰矿业", "SH600221",
+    //       latestPrice: 1.56, riseFallRate: 1, bull: -2),
+    //   StockItem("大唐发电", "SH601123",
+    //       latestPrice: 12.56, riseFallRate: -1, bull: -2),
+    //   // StockItem("国电电力", "SH300103", 12.56, 3.9, 2),
+    //   // StockItem("锦江酒店", "SZ300323", 12.56, -3.9, 1),
+    //   // StockItem("中青旅", "SH300123", 120.56, -3.9, 0),
+    //   // StockItem("三变科技", "SH300123", 12.16, -3.9, 1),
+    //   // StockItem("中国国航", "SZ310113", 2.56, -3.9, -2),
+    //   // StockItem("春秋航空", "SH320123", 12.56, -3.9, -1),
+    //   // StockItem("中国核电", "SH300123", 12.56, -3.9, 1),
+    //   // StockItem("360", "SH300123  ", 12.56, 0, 0),
+    //   // StockItem("华钰矿业", "SH600221", 12.56, -3.9, -2),
+    //   // StockItem("大唐发电", "SH601123", 12.56, -3.9, -1),
+    //   // StockItem("国电电力", "SH300103", 12.56, 3.9, 2),
+    //   // StockItem("锦江酒店", "SZ300323", 12.56, -3.9, 1),
+    //   // StockItem("中青旅", "SH300123", 120.56, -3.9, 2),
+    //   // StockItem("三变科技", "SH300123", 12.16, -3.9, -1),
+    //   // StockItem("中国国航", "SZ310113", 2.56, -3.9, 0),
+    //   // StockItem("春秋航空", "SH320123", 12.56, -3.9, -2),
+    //   // StockItem("中国核电", "SH300123", 12.56, -3.9, 1),
+    //   // StockItem("360", "SH300123  ", 12.56, 0, 2),
+    // ];
 
-    controller.addList(testData);
+    // controller.addList(testData);
+
+    getSubcribedStocks();
+  }
+
+  Future<void> getSubcribedStocks() async {
+    SmartDialog.showLoading();
+    try {
+      var resp = await subscribedStocks();
+      SmartDialog.dismiss();
+      if (resp.code == 200) {
+        if (resp.data.nodes != null) {
+          if (resp.data.nodes!.isNotEmpty) {
+            controller.clear();
+            List<StockItem> items = [];
+            for (var item in resp.data.nodes!) {
+              items.add(StockItem(item.symbol!, item.name!,
+                  latestPrice: 0, riseFallRate: 0, bull: item.bull!));
+            }
+            controller.addList(items);
+          } else {
+            SmartDialog.showToast("暂无数据");
+          }
+        } else {
+          SmartDialog.showToast("暂无数据");
+        }
+      } else {
+        SmartDialog.showToast(resp.message);
+      }
+    } catch (e) {
+      SmartDialog.dismiss();
+      debugPrint(e.toString());
+      SmartDialog.showToast("internal server or network error");
+    }
   }
 
   ///下拉刷新数据
   Future<void> requestRefresh() async {
-    final _random = Random();
-    int next(int min, int max) => min + _random.nextInt(max - min);
-    var index = next(0, 1);
-    var num = next(1, 100);
-    controller.dataList[index] = StockItem("name", "symbol",
-        latestPrice: 13.4 + num, riseFallRate: 0.3, bull: 2);
-    controller.addList([
-      StockItem("360", "SH300123  ",
-          latestPrice: 12.56, riseFallRate: 0, bull: -2)
-    ]);
+    // final _random = Random();
+    // int next(int min, int max) => min + _random.nextInt(max - min);
+    // var index = next(0, 1);
+    // var num = next(1, 100);
+    // controller.dataList[index] = StockItem("name", "symbol",
+    //     latestPrice: 13.4 + num, riseFallRate: 0.3, bull: 2);
+    // controller.addList([
+    //   StockItem("360", "SH300123  ",
+    //       latestPrice: 12.56, riseFallRate: 0, bull: -2)
+    // ]);
+    await getSubcribedStocks();
   }
 
   @override

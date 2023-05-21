@@ -70,6 +70,27 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
+  onAddSubscribe(String symbol, String name) async {
+    SmartDialog.showLoading();
+    try {
+      var resp = await subscribeStock(symbol, name);
+      SmartDialog.dismiss();
+      if (resp.code == 200) {
+        if (resp.data) {
+          SmartDialog.showToast("订阅成功");
+        } else {
+          SmartDialog.showToast("订阅失败");
+        }
+      } else {
+        SmartDialog.showToast(resp.message);
+      }
+    } catch (e) {
+      SmartDialog.dismiss();
+      debugPrint(e.toString());
+      SmartDialog.showToast("internal server or network error");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     PullLoadWidgetControl c = Get.put(controller, tag: "search");
@@ -86,6 +107,7 @@ class _SearchPageState extends State<SearchPage> {
           itemBuilder: (context, index) {
             return Obx(() => SearchItemWidget(
                   data: c.dataList.toList()[index],
+                  onPressed: onAddSubscribe,
                 ));
           },
         ),
