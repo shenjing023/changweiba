@@ -5,8 +5,8 @@ import '../../models/stock.dart';
 
 class StockItemCard extends StatelessWidget {
   final StockItem data;
-  final GestureTapCallback? onTap;
-  final GestureLongPressCallback? onLongPress;
+  final Function(String, String)? onTap;
+  final Function(String, String)? onLongPress;
 
   StockItemCard(this.data, {this.onLongPress, this.onTap});
 
@@ -25,7 +25,12 @@ class StockItemCard extends StatelessWidget {
       bullColor = Colors.green;
     }
     return GestureDetector(
-      onTap: () {},
+      onLongPress: () {
+        onLongPress?.call(data.symbol, data.name);
+      },
+      onTap: () {
+        onTap?.call(data.symbol, data.name);
+      },
       child: Container(
         padding: const EdgeInsets.all(8),
         color: Theme.of(context).primaryColor,

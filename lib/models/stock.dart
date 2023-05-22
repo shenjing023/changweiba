@@ -2,9 +2,9 @@ class StockItem {
   final String name;
   final String symbol;
   // 最新价
-  final double? latestPrice;
+  double? latestPrice;
   // 涨幅
-  final double? riseFallRate;
+  double? riseFallRate;
   // 持仓建议
   final int? bull;
 
@@ -22,6 +22,14 @@ class StockItem {
   @override
   String toString() {
     return 'StockItem: {name: $name, symbol: $symbol, latestPrice: $latestPrice, riseFallRate: $riseFallRate, bull: $bull}';
+  }
+
+  set price(double value) {
+    latestPrice = value;
+  }
+
+  set fallRate(double value) {
+    riseFallRate = value;
   }
 }
 

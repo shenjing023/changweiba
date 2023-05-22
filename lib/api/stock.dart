@@ -133,3 +133,38 @@ Future<BaseResponse<SubscribedStocks>> subscribedStocks() async {
   }
   return resp;
 }
+
+Future<BaseResponse<bool>> unsubscribeStock(String symbol) async {
+  const subscribeStr = r'''
+    mutation UnSubscribeStock($symbol:String!){
+      action: unsubscribeStock(input:$symbol)
+    }
+    ''';
+  final MutationOptions options =
+      MutationOptions(document: gql(subscribeStr), variables: <String, String>{
+    'symbol': symbol,
+  });
+
+  var gqlClient = GetIt.I.get<GQLClient>();
+  final QueryResult result = await gqlClient.mutate(
+    options,
+    onTimeout: () => throw Exception("request timeout"),
+  );
+
+  var resp = BaseResponse(200, "", false);
+  if (result.hasException) {
+    debugPrint("subscribeStock exception: $result");
+    if (result.exception!.graphqlErrors.isEmpty) {
+      resp.code = 500;
+      resp.message = "server internal error";
+    } else {
+      for (var e in result.exception!.graphqlErrors) {
+        resp.code = e.extensions!["code"];
+        resp.message = e.message;
+      }
+    }
+  } else {
+    resp.data = result.data!["action"];
+  }
+  return resp;
+}

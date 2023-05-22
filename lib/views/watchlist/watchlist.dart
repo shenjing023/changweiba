@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:changweiba/models/stock.dart';
@@ -12,10 +13,17 @@ import '../../widget/pull_load_widget.dart';
 import 'stock_item.dart';
 
 class WatchlistPage extends StatefulWidget {
-  const WatchlistPage({super.key});
+  WatchlistPage({super.key});
+
+  late _WatchlistPageState watchlistPageState;
 
   @override
-  _WatchlistPageState createState() => _WatchlistPageState();
+  _WatchlistPageState createState() {
+    watchlistPageState = _WatchlistPageState();
+    return watchlistPageState;
+  }
+
+  _WatchlistPageState getState() => watchlistPageState;
 }
 
 class _WatchlistPageState extends State<WatchlistPage> {
@@ -27,9 +35,13 @@ class _WatchlistPageState extends State<WatchlistPage> {
 
   var controller = PullLoadWidgetControl();
 
+  Timer? timer;
+
   @override
   void dispose() {
     debugPrint("dispose");
+    // 取消定时器
+    timer?.cancel();
     super.dispose();
     Get.delete<PullLoadWidgetControl>(tag: "watchlist");
   }
@@ -43,29 +55,28 @@ class _WatchlistPageState extends State<WatchlistPage> {
     //       latestPrice: 1.56, riseFallRate: 1, bull: -2),
     //   StockItem("大唐发电", "SH601123",
     //       latestPrice: 12.56, riseFallRate: -1, bull: -2),
-    //   // StockItem("国电电力", "SH300103", 12.56, 3.9, 2),
-    //   // StockItem("锦江酒店", "SZ300323", 12.56, -3.9, 1),
-    //   // StockItem("中青旅", "SH300123", 120.56, -3.9, 0),
-    //   // StockItem("三变科技", "SH300123", 12.16, -3.9, 1),
-    //   // StockItem("中国国航", "SZ310113", 2.56, -3.9, -2),
-    //   // StockItem("春秋航空", "SH320123", 12.56, -3.9, -1),
-    //   // StockItem("中国核电", "SH300123", 12.56, -3.9, 1),
-    //   // StockItem("360", "SH300123  ", 12.56, 0, 0),
-    //   // StockItem("华钰矿业", "SH600221", 12.56, -3.9, -2),
-    //   // StockItem("大唐发电", "SH601123", 12.56, -3.9, -1),
-    //   // StockItem("国电电力", "SH300103", 12.56, 3.9, 2),
-    //   // StockItem("锦江酒店", "SZ300323", 12.56, -3.9, 1),
-    //   // StockItem("中青旅", "SH300123", 120.56, -3.9, 2),
-    //   // StockItem("三变科技", "SH300123", 12.16, -3.9, -1),
-    //   // StockItem("中国国航", "SZ310113", 2.56, -3.9, 0),
-    //   // StockItem("春秋航空", "SH320123", 12.56, -3.9, -2),
-    //   // StockItem("中国核电", "SH300123", 12.56, -3.9, 1),
-    //   // StockItem("360", "SH300123  ", 12.56, 0, 2),
     // ];
 
     // controller.addList(testData);
 
     getSubcribedStocks();
+
+    // 设置定时器，每隔30秒刷新数据
+    timer = Timer.periodic(
+        const Duration(seconds: 30), (Timer t) => refreshStockData());
+  }
+
+  // 刷新stock实时数据
+  Future<void> refreshStockData() async {
+    //test
+    final _random = Random();
+    int next(int min, int max) => min + _random.nextInt(max - min);
+    var index = next(0, controller.dataList.length);
+    var num = next(-10, 10);
+    controller.dataList[index].price = 13.4 + num;
+    controller.dataList[index].fallRate = 0.1 + num;
+    controller.update();
+    // TODO:
   }
 
   Future<void> getSubcribedStocks() async {
@@ -79,7 +90,7 @@ class _WatchlistPageState extends State<WatchlistPage> {
             controller.clear();
             List<StockItem> items = [];
             for (var item in resp.data.nodes!) {
-              items.add(StockItem(item.symbol!, item.name!,
+              items.add(StockItem(item.name!, item.symbol!,
                   latestPrice: 0, riseFallRate: 0, bull: item.bull!));
             }
             controller.addList(items);
@@ -101,17 +112,45 @@ class _WatchlistPageState extends State<WatchlistPage> {
 
   ///下拉刷新数据
   Future<void> requestRefresh() async {
-    // final _random = Random();
-    // int next(int min, int max) => min + _random.nextInt(max - min);
-    // var index = next(0, 1);
-    // var num = next(1, 100);
-    // controller.dataList[index] = StockItem("name", "symbol",
-    //     latestPrice: 13.4 + num, riseFallRate: 0.3, bull: 2);
-    // controller.addList([
-    //   StockItem("360", "SH300123  ",
-    //       latestPrice: 12.56, riseFallRate: 0, bull: -2)
-    // ]);
     await getSubcribedStocks();
+  }
+
+  Future<void> onItemLongPress(String symbol, String name) async {
+    var isDelete = await SmartDialog.show(builder: (_) {
+      return AlertDialog(
+          title: Text(name),
+          content: const Text("取消订阅该股票?"),
+          actions: [
+            TextButton(
+              onPressed: () => SmartDialog.dismiss(result: false),
+              child: const Text("否"),
+            ),
+            TextButton(
+              child: const Text("是"),
+              onPressed: () => SmartDialog.dismiss(result: true),
+            )
+          ]);
+    });
+    if (isDelete) {
+      try {
+        var resp = await unsubscribeStock(symbol);
+        SmartDialog.dismiss();
+        if (resp.code == 200) {
+          if (resp.data) {
+            // SmartDialog.showToast("订阅成功");
+            await getSubcribedStocks();
+          } else {
+            SmartDialog.showToast("取消订阅失败");
+          }
+        } else {
+          SmartDialog.showToast(resp.message);
+        }
+      } catch (e) {
+        SmartDialog.dismiss();
+        debugPrint(e.toString());
+        SmartDialog.showToast("internal server or network error");
+      }
+    }
   }
 
   @override
@@ -122,19 +161,10 @@ class _WatchlistPageState extends State<WatchlistPage> {
       itemBuilder: (context, index) {
         return Obx(() => StockItemCard(
               c.dataList[index],
+              onLongPress: onItemLongPress,
             ));
       },
       onRefresh: requestRefresh,
     );
-
-    // return PullLoadWidget(
-    //   control: controller,
-    //   itemBuilder: (context, index) {
-    //     return StockItemCard(
-    //       controller.dataList[index],
-    //     );
-    //   },
-    //   onRefresh: requestRefresh,
-    // );
   }
 }

@@ -26,6 +26,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Color logoColor = Colors.red[600]!;
   int activeIndex = 0;
+  late WatchlistPage page1;
+  late List<Widget> _pageList;
 
   final _pageController = PageController();
 
@@ -47,16 +49,21 @@ class _HomePageState extends State<HomePage> {
     Text('Account', style: TextStyle(color: Colors.grey, fontSize: 12)),
   ];
 
-  List<Widget> _pageList = [
-    WatchlistPage(),
-    PageDetails(title: '消息'),
-    PageDetails(title: '我的'),
-  ];
-
   _onTap(int index) {
     activeIndex = index;
     setState(() {});
     _pageController.jumpToPage(activeIndex);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    page1 = WatchlistPage();
+    _pageList = [
+      page1,
+      PageDetails(title: '消息'),
+      PageDetails(title: '我的'),
+    ];
   }
 
   @override
@@ -68,7 +75,12 @@ class _HomePageState extends State<HomePage> {
         title: TitleBar('肠胃吧',
             iconData: Icons.search_outlined,
             needRightLocalIcon: true,
-            onRightIconPressed: (context) => Get.toNamed(Routes.search)),
+            onRightIconPressed: (context) =>
+                Get.toNamed(Routes.search)!.then((value) {
+                  if (activeIndex == 0) {
+                    page1.getState().requestRefresh();
+                  }
+                })),
         backgroundColor: Theme.of(context).primaryColor,
       ),
       body: PageView(
