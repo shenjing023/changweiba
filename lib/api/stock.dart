@@ -168,3 +168,28 @@ Future<BaseResponse<bool>> unsubscribeStock(String symbol) async {
   }
   return resp;
 }
+
+/// 获取stock实时行情数据
+Future<XQStock?> getStockQuoteData(String symbol) async {
+  // symbol to Upper
+  symbol = symbol.toUpperCase();
+  String url =
+      "https://stock.xueqiu.com/v5/stock/realtime/quotec.json?symbol=$symbol";
+  XQStock? data;
+  onSuccess(resp) {
+    data = XQStock.fromJson(resp);
+  }
+
+  onError(code, msg) {
+    data = XQStock(errorCode: code, errorDescription: msg);
+  }
+
+  await HttpClient().requestNetwork(
+    Method.get,
+    url,
+    onSuccess: onSuccess,
+    onError: onError,
+  );
+  // debugPrint("get stock quote data: ${data?.toJson().toString()}");
+  return data;
+}

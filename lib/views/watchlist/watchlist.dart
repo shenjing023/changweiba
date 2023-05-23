@@ -11,6 +11,7 @@ import '../../api/stock.dart';
 import '../../models/pull_load.dart';
 import '../../widget/pull_load_widget.dart';
 import 'stock_item.dart';
+import '../../utils/common_utils.dart';
 
 class WatchlistPage extends StatefulWidget {
   WatchlistPage({super.key});
@@ -59,11 +60,89 @@ class _WatchlistPageState extends State<WatchlistPage> {
 
     // controller.addList(testData);
 
-    getSubcribedStocks();
+    manuallyUpdateData();
 
     // 设置定时器，每隔30秒刷新数据
     timer = Timer.periodic(
-        const Duration(seconds: 30), (Timer t) => refreshStockData());
+        const Duration(seconds: 30), (Timer t) => automaticallyUpdateData());
+  }
+
+  Future<XQStockData?> _getStockQuoteData(String symbol) async {
+    try {
+      var resp = await getStockQuoteData(symbol);
+      if (resp != null) {
+        if (resp.errorCode == 0) {
+          if (resp.data != null) {
+            return resp.data![0];
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      SmartDialog.showToast("internal server or network error");
+    }
+    return null;
+  }
+
+  Future<void> automaticallyUpdateData() async {
+    // if (!CommonUtils.isBetweenNineThirtyAndFifteen()) {
+    //   return;
+    // }
+    for (var item in controller.dataList) {
+      var xqsd = await _getStockQuoteData(item.symbol);
+      if (xqsd != null) {
+        item.latestPrice = xqsd.current;
+        item.riseFallRate = xqsd.percent;
+      } else {
+        return;
+      }
+    }
+  }
+
+  Future<void> manuallyUpdateData() async {
+    SmartDialog.showLoading();
+    var items = await getSubscribedStocks2();
+    if (items.isEmpty) {
+      SmartDialog.dismiss();
+      return;
+    }
+    for (var item in items) {
+      var xqsd = await _getStockQuoteData(item.symbol);
+      if (xqsd != null) {
+        item.latestPrice = xqsd.current;
+        item.riseFallRate = xqsd.percent;
+      } else {
+        debugPrint("xqsd is null");
+        SmartDialog.dismiss();
+        return;
+      }
+    }
+    SmartDialog.dismiss();
+    controller.clear();
+    controller.addList(items);
+  }
+
+  Future<List<StockItem>> getSubscribedStocks2() async {
+    List<StockItem> items = [];
+    try {
+      var resp = await subscribedStocks();
+      if (resp.code == 200) {
+        if (resp.data.nodes != null) {
+          if (resp.data.nodes!.isNotEmpty) {
+            for (var item in resp.data.nodes!) {
+              items.add(StockItem(item.name!, item.symbol!,
+                  latestPrice: 0, riseFallRate: 0, bull: item.bull!));
+            }
+          }
+        }
+      } else {
+        SmartDialog.showToast(resp.message);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      SmartDialog.showToast("internal server or network error");
+    }
+    return items;
   }
 
   // 刷新stock实时数据
@@ -79,40 +158,40 @@ class _WatchlistPageState extends State<WatchlistPage> {
     // TODO:
   }
 
-  Future<void> getSubcribedStocks() async {
-    SmartDialog.showLoading();
-    try {
-      var resp = await subscribedStocks();
-      SmartDialog.dismiss();
-      if (resp.code == 200) {
-        if (resp.data.nodes != null) {
-          if (resp.data.nodes!.isNotEmpty) {
-            controller.clear();
-            List<StockItem> items = [];
-            for (var item in resp.data.nodes!) {
-              items.add(StockItem(item.name!, item.symbol!,
-                  latestPrice: 0, riseFallRate: 0, bull: item.bull!));
-            }
-            controller.addList(items);
-          } else {
-            SmartDialog.showToast("暂无数据");
-          }
-        } else {
-          SmartDialog.showToast("暂无数据");
-        }
-      } else {
-        SmartDialog.showToast(resp.message);
-      }
-    } catch (e) {
-      SmartDialog.dismiss();
-      debugPrint(e.toString());
-      SmartDialog.showToast("internal server or network error");
-    }
-  }
+  // Future<void> getSubcribedStocks() async {
+  //   SmartDialog.showLoading();
+  //   try {
+  //     var resp = await subscribedStocks();
+  //     SmartDialog.dismiss();
+  //     if (resp.code == 200) {
+  //       if (resp.data.nodes != null) {
+  //         if (resp.data.nodes!.isNotEmpty) {
+  //           controller.clear();
+  //           List<StockItem> items = [];
+  //           for (var item in resp.data.nodes!) {
+  //             items.add(StockItem(item.name!, item.symbol!,
+  //                 latestPrice: 0, riseFallRate: 0, bull: item.bull!));
+  //           }
+  //           controller.addList(items);
+  //         } else {
+  //           SmartDialog.showToast("暂无数据");
+  //         }
+  //       } else {
+  //         SmartDialog.showToast("暂无数据");
+  //       }
+  //     } else {
+  //       SmartDialog.showToast(resp.message);
+  //     }
+  //   } catch (e) {
+  //     SmartDialog.dismiss();
+  //     debugPrint(e.toString());
+  //     SmartDialog.showToast("internal server or network error");
+  //   }
+  // }
 
   ///下拉刷新数据
   Future<void> requestRefresh() async {
-    await getSubcribedStocks();
+    await manuallyUpdateData();
   }
 
   Future<void> onItemLongPress(String symbol, String name) async {
@@ -138,7 +217,7 @@ class _WatchlistPageState extends State<WatchlistPage> {
         if (resp.code == 200) {
           if (resp.data) {
             // SmartDialog.showToast("订阅成功");
-            await getSubcribedStocks();
+            await manuallyUpdateData();
           } else {
             SmartDialog.showToast("取消订阅失败");
           }

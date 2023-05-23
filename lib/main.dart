@@ -9,8 +9,8 @@ import 'package:get_it/get_it.dart';
 
 import 'api/base.dart';
 import 'api/graphql.dart';
-import 'common/style/style.dart';
-import 'common/utils/common_utils.dart';
+import 'utils/style.dart';
+import 'utils/common_utils.dart';
 import 'models/auth.dart';
 import 'utils/shared_preferences.dart';
 

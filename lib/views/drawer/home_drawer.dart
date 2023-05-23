@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../common/style/style.dart';
+import '../../utils/style.dart';
 import '../../utils/shared_preferences.dart';
 import '../../widget/flex_button.dart';
 

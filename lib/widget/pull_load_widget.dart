@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-import '../common/style/style.dart';
+import '../utils/style.dart';
 import '../models/pull_load.dart';
 import 'flare_pull_controller.dart';
 
