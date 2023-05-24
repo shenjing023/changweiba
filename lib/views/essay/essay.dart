@@ -13,21 +13,21 @@ import '../../widget/pull_load_widget.dart';
 import 'stock_item.dart';
 import '../../utils/common_utils.dart';
 
-class WatchlistPage extends StatefulWidget {
-  WatchlistPage({super.key});
+class EssayPage extends StatefulWidget {
+  EssayPage({super.key});
 
-  late _WatchlistPageState watchlistPageState;
+  late _EssayPageState essayPageState;
 
   @override
-  _WatchlistPageState createState() {
-    watchlistPageState = _WatchlistPageState();
-    return watchlistPageState;
+  _EssayPageState createState() {
+    essayPageState = _EssayPageState();
+    return essayPageState;
   }
 
-  _WatchlistPageState getState() => watchlistPageState;
+  _EssayPageState getState() => essayPageState;
 }
 
-class _WatchlistPageState extends State<WatchlistPage> {
+class _EssayPageState extends State<EssayPage> {
   ///控制列表滚动和监听
   final ScrollController scrollController = ScrollController();
 
@@ -36,37 +36,17 @@ class _WatchlistPageState extends State<WatchlistPage> {
 
   var controller = PullLoadWidgetControl();
 
-  Timer? timer;
-
   @override
   void dispose() {
     debugPrint("dispose");
     // 取消定时器
-    timer?.cancel();
     super.dispose();
-    Get.delete<PullLoadWidgetControl>(tag: "watchlist");
+    Get.delete<PullLoadWidgetControl>(tag: "essay");
   }
 
   @override
   void initState() {
     super.initState();
-
-    // List<StockItem> testData = [
-    //   StockItem("华钰矿业", "SH600221",
-    //       latestPrice: 1.56, riseFallRate: 1, bull: -2),
-    //   StockItem("大唐发电", "SH601123",
-    //       latestPrice: 12.56, riseFallRate: -1, bull: -2),
-    // ];
-
-    // controller.addList(testData);
-
-    manuallyUpdateData();
-
-    // 设置定时器，每隔30秒刷新数据
-    timer = Timer.periodic(
-        const Duration(seconds: 10), (Timer t) => automaticallyUpdateData());
-
-    controller.needLoadMore = false;
   }
 
   Future<XQStockData?> _getStockQuoteData(String symbol) async {

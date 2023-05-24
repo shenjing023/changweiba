@@ -31,6 +31,7 @@ class _SearchPageState extends State<SearchPage> {
 
     // controller.dataList.addAll(testData);
     controller.needEmpty = false;
+    controller.needLoadMore = false;
   }
 
   onSearch(String text) async {

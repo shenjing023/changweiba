@@ -112,6 +112,7 @@ class _PullLoadWidgetState extends State<PullLoadWidget>
 
   @protected
   Future<void> handleLoadMore() async {
+    debugPrint("handleLoadMore");
     if (widget.control.isLoading) {
       if (isLoadMoring) {
         return;
@@ -133,6 +134,10 @@ class _PullLoadWidgetState extends State<PullLoadWidget>
     if (widget.control.dataList.isEmpty) {
       ///如果数据为0，渲染空页面
       return _buildEmpty();
+    }
+    if (widget.control.needLoadMore &&
+        index == widget.control.dataList.length) {
+      return _buildProgressIndicator();
     }
 
     ///回调外部正常渲染Item，如果这里有需要，可以直接返回相对位置的index
@@ -184,6 +189,10 @@ class _PullLoadWidgetState extends State<PullLoadWidget>
     ///如果不需要头部，在没有数据时，固定返回数量1用于空页面呈现
     if (widget.control.dataList.isEmpty && widget.control.needEmpty) {
       return 1;
+    } else if (widget.control.dataList.isNotEmpty &&
+        widget.control.needLoadMore) {
+      ///如果有数据且需要加载更多选项，需要对列表数据总数+1
+      return widget.control.dataList.length + 1;
     }
     return widget.control.dataList.length;
   }
@@ -213,7 +222,7 @@ class _PullLoadWidgetState extends State<PullLoadWidget>
         /// 不需要加载
         : Container();
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(10.0),
       child: Center(
         child: bottomWidget,
       ),
