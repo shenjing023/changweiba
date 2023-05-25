@@ -153,7 +153,7 @@ Future<BaseResponse<bool>> unsubscribeStock(String symbol) async {
 
   var resp = BaseResponse(200, "", false);
   if (result.hasException) {
-    debugPrint("subscribeStock exception: $result");
+    debugPrint("unSubscribeStock exception: $result");
     if (result.exception!.graphqlErrors.isEmpty) {
       resp.code = 500;
       resp.message = "server internal error";

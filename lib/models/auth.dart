@@ -29,7 +29,7 @@ class User {
   User(this.nickname, this.id, this.avatar);
 
   User.fromJson(Map<String, dynamic> json) {
-    nickname = json['nickname'];
+    nickname = json['name'];
     id = json['id'];
     avatar = json['avatar'];
   }

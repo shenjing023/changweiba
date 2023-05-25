@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:changweiba/widget/rolling_nav_bar.dart';
 import 'package:get/get.dart';
 
+import '../post/post.dart';
 import '../watchlist/watchlist.dart';
 
 double scaledHeight(BuildContext context, double baseSize) {
@@ -61,7 +62,7 @@ class _HomePageState extends State<HomePage> {
     page1 = WatchlistPage();
     _pageList = [
       page1,
-      PageDetails(title: '消息'),
+      PostPage(),
       PageDetails(title: '我的'),
     ];
   }
@@ -86,7 +87,7 @@ class _HomePageState extends State<HomePage> {
       body: PageView(
         physics: const NeverScrollableScrollPhysics(),
         controller: _pageController,
-        onPageChanged: (index) => print(index),
+        onPageChanged: (index) => {},
         children: _pageList,
       ),
       bottomNavigationBar: SizedBox(

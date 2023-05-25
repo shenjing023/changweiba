@@ -55,10 +55,14 @@ class _PullLoadWidgetState extends State<PullLoadWidget>
     ///增加滑动监听
     _scrollController!.addListener(() {
       ///判断当前滑动位置是不是到达底部，触发加载更多回调
-      if (_scrollController!.position.pixels ==
-          _scrollController!.position.maxScrollExtent) {
-        if (widget.control.needLoadMore) {
-          handleLoadMore();
+      if (_scrollController!.position.atEdge) {
+        bool isTop = _scrollController!.position.pixels == 0;
+        if (isTop) {
+        } else {
+          // bottom
+          if (widget.control.needLoadMore) {
+            handleLoadMore();
+          }
         }
       }
     });
@@ -66,12 +70,12 @@ class _PullLoadWidgetState extends State<PullLoadWidget>
     widget.control.addListener(() {
       setState(() {});
       try {
-        Future.delayed(const Duration(seconds: 2), () {
+        Future.delayed(const Duration(seconds: 1), () {
           // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
           _scrollController!.notifyListeners();
         });
       } catch (e) {
-        print(e);
+        debugPrint("$e");
       }
     });
     super.initState();
@@ -112,7 +116,6 @@ class _PullLoadWidgetState extends State<PullLoadWidget>
 
   @protected
   Future<void> handleLoadMore() async {
-    debugPrint("handleLoadMore");
     if (widget.control.isLoading) {
       if (isLoadMoring) {
         return;
@@ -138,6 +141,18 @@ class _PullLoadWidgetState extends State<PullLoadWidget>
     if (widget.control.needLoadMore &&
         index == widget.control.dataList.length) {
       return _buildProgressIndicator();
+      // 是否是滚动到底部
+      // if (_scrollController!.position.atEdge) {
+      //   bool isTop = _scrollController!.position.pixels == 0;
+      //   if (isTop) {
+      //   } else {
+      //     // bottom
+      //     if (widget.control.needLoadMore) {
+      //       return _buildProgressIndicator();
+      //     }
+      //   }
+      // }
+      // return;
     }
 
     ///回调外部正常渲染Item，如果这里有需要，可以直接返回相对位置的index

@@ -20,10 +20,10 @@ class PostData {
     id = json['id'];
     title = json['title'];
     content = json['content'];
-    replyCount = json['reply_count'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-    tag = json['tag'];
+    replyCount = json['replyNum'];
+    createdAt = json['createdAt'];
+    updatedAt = json['updatedAt'];
+    tag = json['tag'] ?? "";
     user = json['user'] != null ? User.fromJson(json['user']) : null;
     comment =
         json['comment'] != null ? CommentData.fromJson(json['comment']) : null;
@@ -146,5 +146,36 @@ class ReplyData {
   String toString() {
     return """ReplyData: {id: $id, postId: $postId, commentId: $commentId, 
       floor: $floor, content: $content, createdAt: $createdAt, user: $user}""";
+  }
+}
+
+class Posts {
+  List<PostData>? nodes;
+  int? totalCount;
+
+  Posts({this.nodes, this.totalCount});
+
+  Posts.fromJson(Map<String, dynamic> json) {
+    if (json['nodes'] != null) {
+      nodes = <PostData>[];
+      json['nodes'].forEach((v) {
+        nodes!.add(PostData.fromJson(v));
+      });
+    }
+    totalCount = json['totalCount'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (nodes != null) {
+      data['nodes'] = nodes!.map((v) => v.toJson()).toList();
+    }
+    data['totalCount'] = totalCount;
+    return data;
+  }
+
+  @override
+  String toString() {
+    return 'Posts{nodes: $nodes, totalCount: $totalCount}';
   }
 }
