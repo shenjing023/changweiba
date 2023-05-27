@@ -6,10 +6,10 @@ import 'package:graphql/client.dart';
 import '../models/base.dart';
 import '../models/post.dart';
 
-Future<BaseResponse<Posts>> getPosts(int page, int pageSize) async {
+Future<BaseResponse<Posts>> getPosts(int page, int pageSize, bool pin) async {
   const getPostsStr = r'''
-    query GetPosts($page:Int!,$pageSize:Int!){
-      action: posts(page:$page,pageSize:$pageSize){
+    query GetPosts($page:Int!,$pageSize:Int!,$isPin:Boolean!){
+      action: posts(page:$page,pageSize:$pageSize,isPin:$isPin){
         nodes{
           id
           user{
@@ -22,6 +22,7 @@ Future<BaseResponse<Posts>> getPosts(int page, int pageSize) async {
           replyNum
           updatedAt
           createdAt
+          pinStatus
         }
         totalCount
       }
@@ -29,9 +30,10 @@ Future<BaseResponse<Posts>> getPosts(int page, int pageSize) async {
     ''';
   final QueryOptions options = QueryOptions(
       document: gql(getPostsStr),
-      variables: <String, int>{
+      variables: <String, dynamic>{
         'page': page,
         'pageSize': pageSize,
+        'isPin': pin,
       },
       fetchPolicy: FetchPolicy.networkOnly);
   var gqlClient = GetIt.I.get<GQLClient>();
@@ -78,6 +80,78 @@ Future<BaseResponse<bool>> deletePost(int id) async {
   var resp = BaseResponse(200, "", false);
   if (result.hasException) {
     debugPrint("delete post exception: $result");
+    if (result.exception!.graphqlErrors.isEmpty) {
+      resp.code = 500;
+      resp.message = "server internal error";
+    } else {
+      for (var e in result.exception!.graphqlErrors) {
+        resp.code = e.extensions!["code"];
+        resp.message = e.message;
+      }
+    }
+  } else {
+    resp.data = result.data!["action"];
+  }
+  return resp;
+}
+
+Future<BaseResponse<int>> newPost(String title, String content) async {
+  const newPostStr = r'''
+    mutation NewPost($title:String!,$content:String!){
+      action: newPost(input:{title:$title,content:$content})
+    }
+    ''';
+  final MutationOptions options =
+      MutationOptions(document: gql(newPostStr), variables: <String, String>{
+    'title': title,
+    'content': content,
+  });
+
+  var gqlClient = GetIt.I.get<GQLClient>();
+  final QueryResult result = await gqlClient.mutate(
+    options,
+    onTimeout: () => throw Exception("request timeout"),
+  );
+
+  var resp = BaseResponse(200, "", 0);
+  if (result.hasException) {
+    debugPrint("new post exception: $result");
+    if (result.exception!.graphqlErrors.isEmpty) {
+      resp.code = 500;
+      resp.message = "server internal error";
+    } else {
+      for (var e in result.exception!.graphqlErrors) {
+        resp.code = e.extensions!["code"];
+        resp.message = e.message;
+      }
+    }
+  } else {
+    resp.data = result.data!["action"];
+  }
+  return resp;
+}
+
+Future<BaseResponse<bool>> pinPost(int id, bool isPin) async {
+  const newPostStr = r'''
+    mutation PinPost($id:Int!,$pinStatus:Int!){
+      action: pinPost(input:{id:$id,pinStatus:$pinStatus})
+    }
+    ''';
+  final MutationOptions options =
+      MutationOptions(document: gql(newPostStr), variables: <String, int>{
+    'id': id,
+    'pinStatus': isPin ? 1 : 0,
+  });
+
+  var gqlClient = GetIt.I.get<GQLClient>();
+  final QueryResult result = await gqlClient.mutate(
+    options,
+    onTimeout: () => throw Exception("request timeout"),
+  );
+
+  var resp = BaseResponse(200, "", false);
+  if (result.hasException) {
+    debugPrint("new post exception: $result");
     if (result.exception!.graphqlErrors.isEmpty) {
       resp.code = 500;
       resp.message = "server internal error";

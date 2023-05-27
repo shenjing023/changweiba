@@ -7,7 +7,7 @@ import '../../widget/show_action.dart';
 import '../../widget/svg.dart';
 
 class Topic extends StatefulWidget {
-  PostData? data;
+  PostData data;
   double? top;
   double? bottom;
   bool? blackOccu;
@@ -18,10 +18,12 @@ class Topic extends StatefulWidget {
   Color? backgroundColor;
 
   final Function(int)? onDelete;
+  final Function(int, bool)? onPin;
+  final Function(int)? onTap;
 
   Topic({
     Key? key,
-    this.data,
+    required this.data,
     this.top,
     this.bottom,
     this.blackOccu,
@@ -31,6 +33,8 @@ class Topic extends StatefulWidget {
     this.hidePicture,
     this.backgroundColor,
     this.onDelete,
+    this.onPin,
+    this.onTap,
   }) : super(key: key);
 
   @override
@@ -185,16 +189,31 @@ class _TopicState extends State<Topic> {
   // }
 
   _moreAction() async {
+    var options = ["删除此贴", "置顶此贴"];
+    var icons = [Icons.delete_sharp, Icons.arrow_upward];
+    if (widget.data!.pin == 1) {
+      options[1] = "取消置顶";
+      icons[1] = Icons.arrow_downward;
+    }
     showAction(
       context: context,
-      options: ["删除此贴"],
-      icons: [
-        Icons.delete_sharp,
-      ],
+      options: options,
+      icons: icons,
       tap: (res) async {
-        if (res == "删除此贴") {
-          Navigator.pop(context);
-          await widget.onDelete?.call(widget.data!.id);
+        switch (res) {
+          case "删除此贴":
+            Navigator.pop(context);
+            await widget.onDelete?.call(widget.data!.id);
+            break;
+          case "置顶此贴":
+            Navigator.pop(context);
+            await widget.onPin?.call(widget.data!.id, true);
+            break;
+          case "取消置顶":
+            Navigator.pop(context);
+            await widget.onPin?.call(widget.data!.id, false);
+          default:
+            break;
         }
       },
     );
@@ -354,7 +373,8 @@ class _TopicState extends State<Topic> {
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(10)),
         border: Border.all(
-          color: Colors.black,
+          color: widget.data?.pin == 0 ? Colors.black : Colors.green,
+          width: widget.data?.pin == 0 ? 1 : 3,
         ),
       ),
       child: Padding(
@@ -379,8 +399,9 @@ class _TopicState extends State<Topic> {
                           decoration: BoxDecoration(
                               color: Colors.indigoAccent,
                               borderRadius: BorderRadius.circular(5),
-                              image: const DecorationImage(
-                                  image: NetworkImage(
+                              image: DecorationImage(
+                                  image: NetworkImage(widget
+                                          .data?.user?.avatar ??
                                       "https://tse3-mm.cn.bing.net/th/id/OIP.iJyZTWUQ41RGdoVYjU-ARAHaE7?w=262&h=180&c=7&o=5&pid=1.7"),
                                   fit: BoxFit.cover)),
                         ),
@@ -403,7 +424,7 @@ class _TopicState extends State<Topic> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.data!.user!.nickname,
+                          widget.data.user!.nickname,
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 14,
@@ -414,7 +435,7 @@ class _TopicState extends State<Topic> {
                         Text(
                           RelativeDateFormat.format(
                               DateTime.fromMillisecondsSinceEpoch(
-                                  widget.data!.updatedAt * 1000)),
+                                  widget.data.updatedAt * 1000)),
                           style: const TextStyle(
                             color: Color(0xFFAAAAAA),
                             fontSize: 12.5,
@@ -428,7 +449,6 @@ class _TopicState extends State<Topic> {
                   children: [
                     MyInkWell(
                       tap: () {
-                        // XSVibrate();
                         _moreAction();
                       },
                       color: Colors.transparent,
@@ -469,12 +489,12 @@ class _TopicState extends State<Topic> {
                     color: Colors.black,
                   )),
             ),
-            //中部区域：正文
             const Padding(padding: EdgeInsets.all(3)),
+            //中部区域：正文
             Container(
               margin: const EdgeInsets.only(right: 10),
               child: Text(
-                widget.data!.content,
+                widget.data.content,
                 textAlign: TextAlign.start,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
@@ -501,7 +521,7 @@ class _TopicState extends State<Topic> {
                     ),
                     Container(width: 5),
                     Text(
-                      "${widget.data!.replyCount}",
+                      "${widget.data.replyCount}",
                       style: const TextStyle(
                         color: Color(0xFF6B6B6B),
                         fontSize: 12,
@@ -547,6 +567,7 @@ class _TopicState extends State<Topic> {
     //     arguments: (widget.data!["source_id"] ?? widget.data!["topic_id"]),
     //   );
     // }
+    widget.onTap!(widget.data.id);
   }
 
   @override

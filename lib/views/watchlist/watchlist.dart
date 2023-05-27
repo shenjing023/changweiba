@@ -64,7 +64,7 @@ class _WatchlistPageState extends State<WatchlistPage> {
 
     // 设置定时器，每隔30秒刷新数据
     timer = Timer.periodic(
-        const Duration(seconds: 10), (Timer t) => automaticallyUpdateData());
+        const Duration(seconds: 30), (Timer t) => automaticallyUpdateData());
 
     controller.needLoadMore = false;
   }

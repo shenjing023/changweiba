@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:changweiba/widget/rolling_nav_bar.dart';
 import 'package:get/get.dart';
 
+import '../../widget/404.dart';
 import '../post/post.dart';
 import '../watchlist/watchlist.dart';
 
@@ -34,8 +35,8 @@ class _HomePageState extends State<HomePage> {
 
   var iconData = <IconData>[
     Icons.home,
-    Icons.people,
-    Icons.account_circle,
+    Icons.catching_pokemon_sharp,
+    Icons.do_not_disturb,
   ];
 
   var indicatorColors = <Color>[
@@ -46,8 +47,8 @@ class _HomePageState extends State<HomePage> {
 
   var iconText = const <Widget>[
     Text('Home', style: TextStyle(color: Colors.grey, fontSize: 12)),
-    Text('Friends', style: TextStyle(color: Colors.grey, fontSize: 12)),
-    Text('Account', style: TextStyle(color: Colors.grey, fontSize: 12)),
+    Text('Posts', style: TextStyle(color: Colors.grey, fontSize: 12)),
+    Text('Notfound', style: TextStyle(color: Colors.grey, fontSize: 12)),
   ];
 
   _onTap(int index) {
@@ -63,7 +64,7 @@ class _HomePageState extends State<HomePage> {
     _pageList = [
       page1,
       PostPage(),
-      PageDetails(title: '我的'),
+      Page404(),
     ];
   }
 
@@ -111,34 +112,6 @@ class _HomePageState extends State<HomePage> {
           indicatorRadius: scaledHeight(context, 30),
           // onAnimate: _onAnimate,
           onTap: _onTap,
-        ),
-      ),
-    );
-  }
-}
-
-class PageDetails extends StatefulWidget {
-  PageDetails({Key? key, required this.title}) : super(key: key);
-  final String title;
-
-  @override
-  _PageDetailsState createState() => _PageDetailsState();
-}
-
-class _PageDetailsState extends State<PageDetails> {
-  int count = 0;
-  @override
-  Widget build(BuildContext context) {
-    // 这里的打印可以记录一下，后面会用到
-    print('PageDetails build title:${widget.title}');
-    return Scaffold(
-      body: GestureDetector(
-        onTap: () {
-          count += 1;
-          setState(() {});
-        },
-        child: Center(
-          child: Text('${widget.title} count:$count'),
         ),
       ),
     );

@@ -1,9 +1,12 @@
+import 'package:changweiba/views/post/post_new.dart';
+import 'package:changweiba/views/post/test.dart';
 import 'package:get/get.dart';
 
 // import 'views/home/home.dart';
 import 'views/login/login.dart';
 import 'views/chart/k_chart.dart';
 import 'views/home/home.dart';
+import 'views/post/post_detail.dart';
 import 'views/search/search.dart';
 
 abstract class Routes {
@@ -11,6 +14,8 @@ abstract class Routes {
   static const login = '/login';
   static const chart = '/chart';
   static const search = '/search';
+  static const newPost = '/newPost';
+  static const postDetail = '/postDetail';
 }
 
 class AppPages {
@@ -31,6 +36,18 @@ class AppPages {
     GetPage(
       name: Routes.search,
       page: () => const SearchPage(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 100),
+    ),
+    GetPage(
+      name: Routes.newPost,
+      page: () => const NewPostPage(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 100),
+    ),
+    GetPage(
+      name: Routes.postDetail,
+      page: () => PostDetail(),
       transition: Transition.fadeIn,
       transitionDuration: const Duration(milliseconds: 100),
     ),

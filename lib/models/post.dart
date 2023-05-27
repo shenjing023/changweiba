@@ -7,14 +7,14 @@ class PostData {
   late int replyCount;
   late int createdAt;
   late int updatedAt;
+  late int pin;
   String? tag;
   User? user;
-  CommentData? comment;
-  ReplyData? reply;
+  List<CommentData>? comments;
 
   PostData(this.id, this.title, this.content, this.replyCount, this.createdAt,
-      this.updatedAt,
-      {this.tag, this.user, this.comment, this.reply});
+      this.updatedAt, this.pin,
+      {this.tag, this.user, this.comments});
 
   PostData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -23,11 +23,15 @@ class PostData {
     replyCount = json['replyNum'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
+    pin = json['pinStatus'];
     tag = json['tag'] ?? "";
     user = json['user'] != null ? User.fromJson(json['user']) : null;
-    comment =
-        json['comment'] != null ? CommentData.fromJson(json['comment']) : null;
-    reply = json['reply'] != null ? ReplyData.fromJson(json['reply']) : null;
+    if (json['comments'] != null) {
+      comments = <CommentData>[];
+      json['replies'].forEach((v) {
+        comments!.add(CommentData.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -39,15 +43,14 @@ class PostData {
     data['created_at'] = createdAt;
     data['updated_at'] = updatedAt;
     data['tag'] = tag;
+    data['pinStatus'] = pin;
     if (user != null) {
       data['user'] = user!.toJson();
     }
-    if (comment != null) {
-      data['comment'] = comment!.toJson();
+    if (comments != null) {
+      data['comments'] = comments!.map((v) => v.toJson()).toList();
     }
-    if (reply != null) {
-      data['reply'] = reply!.toJson();
-    }
+
     return data;
   }
 
@@ -55,7 +58,7 @@ class PostData {
   String toString() {
     return """PostData: {id: $id, title: $title, content: $content, 
       replyCount: $replyCount, createdAt: $createdAt, updatedAt: $updatedAt, 
-      tag: $tag, user: $user, comment: $comment, reply: $reply}""";
+      pin: $pin,tag: $tag, user: $user, comments: $comments}""";
   }
 }
 
@@ -66,10 +69,10 @@ class CommentData {
   late String content;
   late int createdAt;
   User? user;
-  ReplyData? reply;
+  List<ReplyData>? replies;
 
   CommentData(this.id, this.postId, this.floor, this.content, this.createdAt,
-      {this.user, this.reply});
+      {this.user, this.replies});
 
   CommentData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -78,7 +81,12 @@ class CommentData {
     content = json['content'];
     createdAt = json['created_at'];
     user = json['user'] != null ? User.fromJson(json['user']) : null;
-    reply = json['reply'] != null ? ReplyData.fromJson(json['reply']) : null;
+    if (json['replies'] != null) {
+      replies = <ReplyData>[];
+      json['replies'].forEach((v) {
+        replies!.add(ReplyData.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -91,8 +99,8 @@ class CommentData {
     if (user != null) {
       data['user'] = user!.toJson();
     }
-    if (reply != null) {
-      data['reply'] = reply!.toJson();
+    if (replies != null) {
+      data['replies'] = replies!.map((v) => v.toJson()).toList();
     }
     return data;
   }
@@ -100,7 +108,7 @@ class CommentData {
   @override
   String toString() {
     return """CommentData{id: $id, postId: $postId, floor: $floor, 
-      content: $content, createdAt: $createdAt, user: $user, reply: $reply}""";
+      content: $content, createdAt: $createdAt, user: $user, replies: $replies}""";
   }
 }
 

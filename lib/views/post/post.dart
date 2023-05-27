@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:changweiba/models/post.dart';
+import 'package:changweiba/routes.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -67,23 +68,30 @@ class _PostPageState extends State<PostPage> {
     currentPage = 2;
   }
 
-  Future<List<PostData>> getMyPosts(int page, int pageSize) async {
+  Future<List<PostData>> _getPosts(int page, int pageSize, bool isPin) async {
     List<PostData> items = [];
     try {
-      var resp = await getPosts(page, pageSize);
+      var resp = await getPosts(page, pageSize, isPin);
       if (resp.code == 200) {
         if (resp.data.nodes != null) {
           if (resp.data.nodes!.isNotEmpty) {
             for (var item in resp.data.nodes!) {
-              items.add(PostData(item.id, item.title, item.content,
-                  item.replyCount, item.createdAt, item.updatedAt,
-                  tag: item.tag,
-                  user: item.user,
-                  comment: item.comment,
-                  reply: item.reply));
+              items.add(PostData(
+                item.id,
+                item.title,
+                item.content,
+                item.replyCount,
+                item.createdAt,
+                item.updatedAt,
+                item.pin,
+                tag: item.tag,
+                user: item.user,
+              ));
             }
           }
-          totalPostCount = resp.data.totalCount!;
+          if (!isPin) {
+            totalPostCount = resp.data.totalCount!;
+          }
         }
       } else {
         SmartDialog.showToast(resp.message);
@@ -92,8 +100,25 @@ class _PostPageState extends State<PostPage> {
       debugPrint(e.toString());
       SmartDialog.showToast("internal server or network error");
     }
+    return items;
+  }
+
+  Future<List<PostData>> getMyPosts(int page, int pageSize) async {
+    List<PostData> items = [];
+    // 先置顶帖
+    var items1 = await _getPosts(page, pageSize, true);
+    if (items1.isNotEmpty) {
+      items.addAll(items1);
+    }
+    // 普通帖
+    var items2 = await _getPosts(page, pageSize, false);
+    if (items2.isNotEmpty) {
+      items.addAll(items2);
+    }
+
     if (currentPage * 10 >= totalPostCount) {
       controller.needLoadMore = false;
+      controller.update();
     }
 
     return items;
@@ -118,9 +143,13 @@ class _PostPageState extends State<PostPage> {
   }
 
   Future<void> onLoadMore() async {
-    var items = await getMyPosts(currentPage, 10);
+    var items = await _getPosts(currentPage, 10, false);
     if (items.isNotEmpty) {
       controller.addList(items);
+    }
+    if (currentPage * 10 >= totalPostCount) {
+      controller.needLoadMore = false;
+      controller.update();
     }
     currentPage++;
   }
@@ -129,6 +158,20 @@ class _PostPageState extends State<PostPage> {
     var resp = await deletePost(id);
     if (resp.code == 200) {
       SmartDialog.showToast("删帖成功");
+    } else {
+      SmartDialog.showToast(resp.message);
+    }
+    await manuallyUpdateData();
+  }
+
+  Future<void> onPinPost(int id, bool isPin) async {
+    var resp = await pinPost(id, isPin);
+    if (resp.code == 200) {
+      if (isPin) {
+        SmartDialog.showToast("置顶成功");
+      } else {
+        SmartDialog.showToast("取消置顶成功");
+      }
     } else {
       SmartDialog.showToast(resp.message);
     }
@@ -145,6 +188,10 @@ class _PostPageState extends State<PostPage> {
           return Obx(() => Topic(
                 data: c.dataList[index],
                 onDelete: onDeletePost,
+                onPin: onPinPost,
+                onTap: (id) {
+                  Get.toNamed(Routes.postDetail, arguments: id);
+                },
               ));
         },
         onRefresh: requestRefresh,
@@ -152,7 +199,13 @@ class _PostPageState extends State<PostPage> {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () {},
+        onPressed: () {
+          Get.toNamed(Routes.newPost)!.then((value) {
+            if (value) {
+              manuallyUpdateData();
+            }
+          });
+        },
       ),
     );
     // return PullLoadWidget(
