@@ -6,7 +6,8 @@ import 'package:graphql/client.dart';
 import '../models/base.dart';
 import '../models/post.dart';
 
-Future<BaseResponse<Posts>> getPosts(int page, int pageSize, bool pin) async {
+Future<BaseResponse<AllPosts>> getPosts(
+    int page, int pageSize, bool pin) async {
   const getPostsStr = r'''
     query GetPosts($page:Int!,$pageSize:Int!,$isPin:Boolean!){
       action: posts(page:$page,pageSize:$pageSize,isPin:$isPin){
@@ -42,7 +43,7 @@ Future<BaseResponse<Posts>> getPosts(int page, int pageSize, bool pin) async {
     onTimeout: () => throw Exception("request timeout"),
   );
 
-  var resp = BaseResponse(200, "", Posts());
+  var resp = BaseResponse(200, "", AllPosts());
   if (result.hasException) {
     debugPrint("getPosts exception: $result");
     if (result.exception!.graphqlErrors.isEmpty) {
@@ -55,7 +56,7 @@ Future<BaseResponse<Posts>> getPosts(int page, int pageSize, bool pin) async {
       }
     }
   } else {
-    resp.data = Posts.fromJson(result.data!["action"]);
+    resp.data = AllPosts.fromJson(result.data!["action"]);
   }
   return resp;
 }
@@ -163,6 +164,104 @@ Future<BaseResponse<bool>> pinPost(int id, bool isPin) async {
     }
   } else {
     resp.data = result.data!["action"];
+  }
+  return resp;
+}
+
+Future<BaseResponse<int>> newComment(int postId, String content) async {
+  const newCommentStr = r'''
+    mutation NewComment($postId:Int!,$content:String!){
+      action: newComment(input:{postId:$postId,content:$content})
+    }
+    ''';
+  final MutationOptions options = MutationOptions(
+      document: gql(newCommentStr),
+      variables: <String, dynamic>{
+        'postId': postId,
+        'content': content,
+      });
+
+  var gqlClient = GetIt.I.get<GQLClient>();
+  final QueryResult result = await gqlClient.mutate(
+    options,
+    onTimeout: () => throw Exception("request timeout"),
+  );
+
+  var resp = BaseResponse(200, "", 0);
+  if (result.hasException) {
+    debugPrint("new post exception: $result");
+    if (result.exception!.graphqlErrors.isEmpty) {
+      resp.code = 500;
+      resp.message = "server internal error";
+    } else {
+      for (var e in result.exception!.graphqlErrors) {
+        resp.code = e.extensions!["code"];
+        resp.message = e.message;
+      }
+    }
+  } else {
+    resp.data = result.data!["action"];
+  }
+  return resp;
+}
+
+Future<BaseResponse<Post>> getPostDetail(int postId) async {
+  const getPostDetailStr = r'''
+    query GetPostDetail($postId:Int!){
+      action: post(postId:$postId){
+        id
+        title
+        content
+        updatedAt
+        createdAt
+        comments(page:1,pageSize:100){
+          nodes{
+            id
+            content
+            postId
+            floor
+            createdAt
+            user{
+      		    id
+      		    name
+      		    avatar
+      		  }
+          }
+          totalCount
+        }
+        user{
+          id
+          name
+          avatar
+        }
+      }
+    }
+    ''';
+  final QueryOptions options = QueryOptions(
+      document: gql(getPostDetailStr),
+      variables: <String, int>{
+        'postId': postId,
+      },
+      fetchPolicy: FetchPolicy.networkOnly);
+  var gqlClient = GetIt.I.get<GQLClient>();
+  final QueryResult result = await gqlClient.query(
+    options,
+    onTimeout: () => throw Exception("request timeout"),
+  );
+
+  var resp = BaseResponse(200, "", Post());
+  if (result.hasException) {
+    if (result.exception!.graphqlErrors.isEmpty) {
+      resp.code = 500;
+      resp.message = "server internal error";
+    } else {
+      for (var e in result.exception!.graphqlErrors) {
+        resp.code = e.extensions!["code"];
+        resp.message = e.message;
+      }
+    }
+  } else {
+    resp.data = Post.fromJson(result.data!["action"]);
   }
   return resp;
 }

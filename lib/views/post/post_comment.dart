@@ -5,7 +5,7 @@ import '../../utils/time.dart';
 import '../../widget/niw.dart';
 
 class CommentCard extends StatefulWidget {
-  CommentData data;
+  Comment data;
   CommentCard(this.data, {Key? key}) : super(key: key);
 
   @override
@@ -15,7 +15,7 @@ class CommentCard extends StatefulWidget {
 class _CommentCardState extends State<CommentCard> {
   List<Widget> _buildReplies() {
     List<Text> replies = [];
-    widget.data.replies?.forEach((reply) {
+    widget.data.replies?.nodes?.forEach((reply) {
       replies.add(
         Text(
           "${reply.user!.nickname}: ${reply.content}",
@@ -112,7 +112,7 @@ class _CommentCardState extends State<CommentCard> {
                     Container(
                       margin: const EdgeInsets.only(right: 10),
                       child: Text(
-                        widget.data.content,
+                        widget.data.content ?? "",
                         textAlign: TextAlign.left,
                         style: const TextStyle(
                           fontSize: 16,
@@ -137,7 +137,7 @@ class _CommentCardState extends State<CommentCard> {
                       Text(
                         RelativeDateFormat.format(
                             DateTime.fromMillisecondsSinceEpoch(
-                                widget.data.createdAt * 1000)),
+                                widget.data.createdAt! * 1000)),
                         style: const TextStyle(
                           color: Color(0xFFAAAAAA),
                           fontSize: 12,
@@ -146,7 +146,7 @@ class _CommentCardState extends State<CommentCard> {
                     ]),
                     // 评论内容
                     widget.data.replies != null
-                        ? ((widget.data.replies!.isNotEmpty)
+                        ? ((widget.data.replies?.totalCount != 0)
                             ? Transform.translate(
                                 offset: const Offset(-7, 0),
                                 child: Container(

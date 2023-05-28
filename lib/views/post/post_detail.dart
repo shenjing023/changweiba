@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:changweiba/api/post.dart';
 import 'package:changweiba/models/post.dart';
 import 'package:changweiba/views/post/post_comment.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ class PostDetail extends StatefulWidget {
 }
 
 class _PostDetailState extends State<PostDetail> {
-  late PostData data;
+  Post data = Post();
   List<dynamic>? comment = [];
   bool? load_done = false;
   var loading = false;
@@ -41,7 +42,7 @@ class _PostDetailState extends State<PostDetail> {
   bool sending = false; //是否正在发送
   String placeholder = "请在此编辑回复";
 
-  String? blackKeyWord = "";
+  // String? blackKeyWord = "";
   ScrollController _scrollController = ScrollController();
   TextEditingController _txtController = TextEditingController();
   FocusNode _focusNode = FocusNode();
@@ -50,67 +51,81 @@ class _PostDetailState extends State<PostDetail> {
     return MediaQuery.of(context).padding.bottom;
   }
 
+  Future _getData2() async {
+    SmartDialog.showLoading();
+    try {
+      var resp = await getPostDetail(widget.postID!);
+      if (resp.code == 200) {
+        if (resp.data.id != 0) {
+          data = resp.data;
+        } else {
+          // SmartDialog.dismiss();
+          SmartDialog.showToast("internal server or network error");
+        }
+      } else {
+        // SmartDialog.dismiss();
+        SmartDialog.showToast("internal server or network error");
+      }
+    } catch (e) {
+      // SmartDialog.dismiss();
+      debugPrint(e.toString());
+      SmartDialog.showToast("internal server or network error");
+    }
+
+    SmartDialog.dismiss();
+    setState(() {});
+  }
+
   Future _getData() async {
-    data = PostData(
-        widget.postID!,
-        "title11是否应当看到就开了阿萨大大1111",
-        "content12爱神的箭阿三法语考试的话饭卡上的还得看哦i是肯定看哈上课的哈萨克返还借款撒谎客户公司就看到过撒娇或多个撒娇的国际化31231231",
-        5,
-        1685022720,
-        1685022720,
-        0,
-        user: User("nickname", 8, "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg"),
-        comments: [
-          CommentData(
-              2, widget.postID!, 2, "啊的客服就丢掉疯狂的麻痹u阿哥撒旦吉萨利空打击案例大赛", 1685022720,
-              user: User(
-                  "nickname", 8, "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg"),
-              replies: [
-                ReplyData(
-                    2, widget.postID!, 2, 1, "contentsadasdad", 1685022720,
-                    user: User("nickname", 8,
-                        "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg")),
-                ReplyData(
-                    3, widget.postID!, 2, 2, "contentsadasdad", 1685022720,
-                    user: User("nickname", 8,
-                        "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg")),
-              ]),
-          CommentData(
-              3, widget.postID!, 3, "conten设计的凯撒巨大石块角度考虑阿松大t22321", 1685022720,
-              user: User(
-                  "nickname", 8, "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg"),
-              replies: [
-                ReplyData(4, widget.postID!, 3, 1, "时间快速发撒大家", 1685022720,
-                    user: User("nickname", 8,
-                        "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg")),
-                ReplyData(5, widget.postID!, 3, 2, "是的客服的劳动力肯德基的浮动空间看看手机打开手机",
-                    1685022720,
-                    user: User("nickname", 8,
-                        "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg")),
-              ]),
-          CommentData(
-            4,
-            widget.postID!,
-            4,
-            "设计的凯撒巨大石块角度考虑321",
-            1685022720,
-            user: User(
-                "nickname", 8, "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg"),
-          ),
-          CommentData(
-              5, widget.postID!, 5, "conten设计的凯撒巨大石块角度考虑阿松大t22321", 1685022720,
-              user: User(
-                  "nickname", 8, "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg"),
-              replies: [
-                ReplyData(6, widget.postID!, 5, 1, "时sdsad间快速发撒大家", 1685022720,
-                    user: User("nickname", 8,
-                        "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg")),
-                ReplyData(7, widget.postID!, 5, 2, "是的客服的劳动力肯德基的浮动空间看看手机打开手机",
-                    1685022720,
-                    user: User("nickname", 8,
-                        "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg")),
-              ]),
-        ]);
+    data = Post(
+      id: widget.postID!,
+      title: "title11是否应当看到就开了阿萨大大1111",
+      content:
+          "content12爱神的箭阿三法语考试的话饭卡上的还得看哦i是肯定看哈上课的哈萨克返还借款撒谎客户公司就看到过撒娇或多个撒娇的国际化31231231",
+      replyCount: 5,
+      createdAt: 1685022720,
+      updatedAt: 1685022720,
+      pin: 0,
+      user: User("nickname", 8, "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg"),
+      // comments: Comments(totalCount: 4, nodes: [
+      //   Comment(
+      //     id: 2,
+      //     postId: widget.postID!,
+      //     floor: 2,
+      //     content: "啊的客服就丢掉疯狂的麻痹u阿哥撒旦吉萨利空打击案例大赛",
+      //     createdAt: 1685022720,
+      //     user: User(
+      //         "nickname", 8, "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg"),
+      //   ),
+      //   Comment(
+      //     id: 3,
+      //     postId: widget.postID!,
+      //     floor: 3,
+      //     content: "啊的客服就丢掉疯狂的麻痹u阿哥撒旦吉萨利空打击案例大赛",
+      //     createdAt: 1685022720,
+      //     user: User(
+      //         "nickname", 8, "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg"),
+      //   ),
+      //   Comment(
+      //     id: 4,
+      //     postId: widget.postID!,
+      //     floor: 4,
+      //     content: "啊的客服就丢掉疯狂的麻痹u阿哥撒旦吉萨利空打击案例大赛",
+      //     createdAt: 1685022720,
+      //     user: User(
+      //         "nickname", 8, "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg"),
+      //   ),
+      //   Comment(
+      //     id: 5,
+      //     postId: widget.postID!,
+      //     floor: 5,
+      //     content: "啊的客服就丢掉疯狂的麻痹u阿哥撒旦吉萨利空打击案例大赛",
+      //     createdAt: 1685022720,
+      //     user: User(
+      //         "nickname", 8, "https://s1.ax1x.com/2023/05/26/p9qEobn.jpg"),
+      //   ),
+      // ])
+    );
   }
 
   void _getComment() async {
@@ -129,8 +144,8 @@ class _PostDetailState extends State<PostDetail> {
 
   @override
   void initState() {
-    _getData();
     super.initState();
+    _getData2();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels < -100) {
         if (!vibrate) {
@@ -207,7 +222,7 @@ class _PostDetailState extends State<PostDetail> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          data.user!.nickname,
+                          data.user?.nickname ?? "",
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 14,
@@ -215,15 +230,17 @@ class _PostDetailState extends State<PostDetail> {
                           ),
                         ),
                         Container(height: 1),
-                        Text(
-                          RelativeDateFormat.format(
-                              DateTime.fromMillisecondsSinceEpoch(
-                                  data.updatedAt * 1000)),
-                          style: const TextStyle(
-                            color: Color(0xFFAAAAAA),
-                            fontSize: 12.5,
-                          ),
-                        ),
+                        data.updatedAt == null
+                            ? Container()
+                            : Text(
+                                RelativeDateFormat.format(
+                                    DateTime.fromMillisecondsSinceEpoch(
+                                        data.updatedAt! * 1000)),
+                                style: const TextStyle(
+                                  color: Color(0xFFAAAAAA),
+                                  fontSize: 12.5,
+                                ),
+                              ),
                       ],
                     )
                   ],
@@ -234,7 +251,7 @@ class _PostDetailState extends State<PostDetail> {
             //中部区域：标题
             Container(
               margin: const EdgeInsets.only(right: 10),
-              child: Text(data.title,
+              child: Text(data.title?.trim() ?? "",
                   textAlign: TextAlign.start,
                   style: const TextStyle(
                       fontSize: 20,
@@ -246,7 +263,7 @@ class _PostDetailState extends State<PostDetail> {
             Container(
               margin: const EdgeInsets.only(right: 10),
               child: Text(
-                data.content,
+                data.content?.trim() ?? "",
                 textAlign: TextAlign.start,
                 style: const TextStyle(
                   fontSize: 16,
@@ -292,22 +309,20 @@ class _PostDetailState extends State<PostDetail> {
       // Container(height: 5),
       Divider(color: Colors.grey.shade300),
     ];
-    tmp.add(data.comments!.isEmpty
-        ? Container(
-            padding: const EdgeInsets.symmetric(vertical: 60),
-            child: const Text(
-              "暂无评论",
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
-          )
-        : Container());
-    for (var i = 0; i < data.comments!.length; i++) {
-      tmp.add(CommentCard(
-        data.comments![i],
-      ));
+    if (data.comments != null) {
+      if (data.comments!.totalCount == 0) {
+        tmp.add(const Center(
+            child: Text("暂无评论",
+                style: TextStyle(
+                  fontSize: 20,
+                ))));
+      } else {
+        data.comments!.nodes?.forEach((element) {
+          tmp.add(CommentCard(element));
+        });
+      }
     }
+
     tmp.addAll([
       // BottomLoading(
       //   color: Colors.transparent,
@@ -414,7 +429,18 @@ class _PostDetailState extends State<PostDetail> {
                     setState(() {});
                   },
                   send: (String content) async {
-                    SmartDialog.showToast(content);
+                    if (content.isEmpty) {
+                      SmartDialog.showToast("回复内容不能为空");
+                      return;
+                    }
+
+                    var resp = await newComment(data.id!, content);
+                    if (resp.code == 200) {
+                      SmartDialog.showToast("发帖成功");
+                    } else {
+                      SmartDialog.showToast(resp.message);
+                      return;
+                    }
                     //完成发表评论
                     setState(() {
                       editing = false;
@@ -423,7 +449,7 @@ class _PostDetailState extends State<PostDetail> {
                       placeholder = ("请在此编辑回复");
                     });
                     await Future.delayed(const Duration(milliseconds: 30));
-                    await _getData();
+                    await _getData2();
                   },
                 )
               : DetailFixBottom(
@@ -439,29 +465,6 @@ class _PostDetailState extends State<PostDetail> {
     );
   }
 }
-
-//分割线
-// class Divider extends StatelessWidget {
-//   const Divider({
-//     Key? key,
-//     required this.context,
-//   }) : super(key: key);
-
-//   final BuildContext context;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       width: MediaQuery.of(context).size.width,
-//       height: 10,
-//       decoration: const BoxDecoration(
-//         // color: Color(0xFFF6F6F6),
-//         color: Colors.black,
-//         borderRadius: BorderRadius.all(Radius.circular(10)),
-//       ),
-//     );
-//   }
-// }
 
 //加载动画
 class BottomLoading extends StatefulWidget {
@@ -506,82 +509,82 @@ class _BottomLoadingState extends State<BottomLoading> {
 }
 
 // 楼主名字头像
-class PostDetailHead extends StatelessWidget {
-  const PostDetailHead({
-    Key? key,
-    required this.data,
-  }) : super(key: key);
+// class PostDetailHead extends StatelessWidget {
+//   const PostDetailHead({
+//     Key? key,
+//     required this.data,
+//   }) : super(key: key);
 
-  final User data;
+//   final User data;
 
-  @override
-  Widget build(BuildContext context) {
-    return MyInkWell(
-        tap: () {},
-        color: Colors.transparent,
-        widget: Container(
-          margin: const EdgeInsets.fromLTRB(5, 12, 5, 12),
-          padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(100)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white, width: 2),
-                  borderRadius: const BorderRadius.all(Radius.circular(100)),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    width: 23,
-                    height: 23,
-                    decoration: BoxDecoration(
-                        color: Colors.indigoAccent,
-                        borderRadius: BorderRadius.circular(5),
-                        image: DecorationImage(
-                            image: NetworkImage(data.avatar ??
-                                "https://tse3-mm.cn.bing.net/th/id/OIP.iJyZTWUQ41RGdoVYjU-ARAHaE7?w=262&h=180&c=7&o=5&pid=1.7"),
-                            fit: BoxFit.cover)),
-                  ),
-                ),
-              ),
-              const Padding(padding: EdgeInsets.all(3)),
-              Text(
-                data.nickname,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  // fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Padding(padding: EdgeInsets.all(3)),
-              MyInkWell(
-                tap: () {},
-                color: Colors.transparent,
-                widget: const Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 5,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.more_horiz_sharp,
-                        size: 18,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-                radius: 1,
-              ),
-              const Padding(padding: EdgeInsets.all(3)),
-            ],
-          ),
-        ),
-        radius: 100);
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return MyInkWell(
+//         tap: () {},
+//         color: Colors.transparent,
+//         widget: Container(
+//           margin: const EdgeInsets.fromLTRB(5, 12, 5, 12),
+//           padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+//           decoration: const BoxDecoration(
+//             borderRadius: BorderRadius.all(Radius.circular(100)),
+//           ),
+//           child: Row(
+//             children: [
+//               Container(
+//                 decoration: BoxDecoration(
+//                   border: Border.all(color: Colors.white, width: 2),
+//                   borderRadius: const BorderRadius.all(Radius.circular(100)),
+//                 ),
+//                 child: ClipRRect(
+//                   borderRadius: BorderRadius.circular(20),
+//                   child: Container(
+//                     width: 23,
+//                     height: 23,
+//                     decoration: BoxDecoration(
+//                         color: Colors.indigoAccent,
+//                         borderRadius: BorderRadius.circular(5),
+//                         image: DecorationImage(
+//                             image: NetworkImage(data.avatar ??
+//                                 "https://tse3-mm.cn.bing.net/th/id/OIP.iJyZTWUQ41RGdoVYjU-ARAHaE7?w=262&h=180&c=7&o=5&pid=1.7"),
+//                             fit: BoxFit.cover)),
+//                   ),
+//                 ),
+//               ),
+//               const Padding(padding: EdgeInsets.all(3)),
+//               Text(
+//                 data.nickname,
+//                 style: const TextStyle(
+//                   color: Colors.white,
+//                   fontSize: 14,
+//                   // fontWeight: FontWeight.bold,
+//                 ),
+//               ),
+//               const Padding(padding: EdgeInsets.all(3)),
+//               MyInkWell(
+//                 tap: () {},
+//                 color: Colors.transparent,
+//                 widget: const Padding(
+//                   padding: EdgeInsets.symmetric(
+//                     vertical: 10,
+//                     horizontal: 5,
+//                   ),
+//                   child: Row(
+//                     mainAxisAlignment: MainAxisAlignment.center,
+//                     children: [
+//                       Icon(
+//                         Icons.more_horiz_sharp,
+//                         size: 18,
+//                         color: Colors.white,
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 radius: 1,
+//               ),
+//               const Padding(padding: EdgeInsets.all(3)),
+//             ],
+//           ),
+//         ),
+//         radius: 100);
+//   }
+// }

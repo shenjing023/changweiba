@@ -54,10 +54,12 @@ class _PostPageState extends State<PostPage> {
   }
 
   Future<void> manuallyUpdateData() async {
+    debugPrint("1 postpage");
     currentPage = 1;
     controller.needLoadMore = true;
     SmartDialog.showLoading();
     var items = await getMyPosts(currentPage, 10);
+    debugPrint("2 postpage");
     if (items.isEmpty) {
       SmartDialog.dismiss();
       return;
@@ -68,25 +70,15 @@ class _PostPageState extends State<PostPage> {
     currentPage = 2;
   }
 
-  Future<List<PostData>> _getPosts(int page, int pageSize, bool isPin) async {
-    List<PostData> items = [];
+  Future<List<Post>> _getPosts(int page, int pageSize, bool isPin) async {
+    List<Post> items = [];
     try {
       var resp = await getPosts(page, pageSize, isPin);
       if (resp.code == 200) {
         if (resp.data.nodes != null) {
           if (resp.data.nodes!.isNotEmpty) {
             for (var item in resp.data.nodes!) {
-              items.add(PostData(
-                item.id,
-                item.title,
-                item.content,
-                item.replyCount,
-                item.createdAt,
-                item.updatedAt,
-                item.pin,
-                tag: item.tag,
-                user: item.user,
-              ));
+              items.add(item);
             }
           }
           if (!isPin) {
@@ -103,8 +95,8 @@ class _PostPageState extends State<PostPage> {
     return items;
   }
 
-  Future<List<PostData>> getMyPosts(int page, int pageSize) async {
-    List<PostData> items = [];
+  Future<List<Post>> getMyPosts(int page, int pageSize) async {
+    List<Post> items = [];
     // 先置顶帖
     var items1 = await _getPosts(page, pageSize, true);
     if (items1.isNotEmpty) {
@@ -180,6 +172,7 @@ class _PostPageState extends State<PostPage> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("build postpage");
     PullLoadWidgetControl c = Get.put(controller, tag: "post");
     return Scaffold(
       body: PullLoadWidget(

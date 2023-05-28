@@ -7,7 +7,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_navigation/src/router_report.dart';
 import 'package:get_it/get_it.dart';
 
-import 'api/base.dart';
 import 'api/graphql.dart';
 import 'utils/style.dart';
 import 'utils/common_utils.dart';
@@ -32,7 +31,6 @@ void initNetwork() {
 Future initialization(BuildContext? context) async {
   await Storage().init();
   String? rToken = Storage().prefs.getString("refreshToken");
-  String accessToken = "";
   initNetwork();
   if (rToken != null) {
     var response = await refreshAuthToken(rToken);
@@ -42,11 +40,6 @@ Future initialization(BuildContext? context) async {
           .prefs
           .setString("refreshToken", response.data!["refreshToken"]!);
       Storage().prefs.setBool("isAuthenticated", true);
-      accessToken = response.data!["accessToken"]!;
-
-      // set graphql client header
-      var gqlClient = GetIt.I.get<GQLClient>();
-      gqlClient.setHeader("auth", accessToken);
     } else {
       Storage().prefs.setBool("isAuthenticated", false);
     }

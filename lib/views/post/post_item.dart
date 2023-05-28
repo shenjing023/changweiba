@@ -7,7 +7,7 @@ import '../../widget/show_action.dart';
 import '../../widget/svg.dart';
 
 class Topic extends StatefulWidget {
-  PostData data;
+  Post data;
   double? top;
   double? bottom;
   bool? blackOccu;
@@ -191,7 +191,7 @@ class _TopicState extends State<Topic> {
   _moreAction() async {
     var options = ["删除此贴", "置顶此贴"];
     var icons = [Icons.delete_sharp, Icons.arrow_upward];
-    if (widget.data!.pin == 1) {
+    if (widget.data.pin! == 1) {
       options[1] = "取消置顶";
       icons[1] = Icons.arrow_downward;
     }
@@ -203,15 +203,15 @@ class _TopicState extends State<Topic> {
         switch (res) {
           case "删除此贴":
             Navigator.pop(context);
-            await widget.onDelete?.call(widget.data!.id);
+            await widget.onDelete?.call(widget.data.id!);
             break;
           case "置顶此贴":
             Navigator.pop(context);
-            await widget.onPin?.call(widget.data!.id, true);
+            await widget.onPin?.call(widget.data.id!, true);
             break;
           case "取消置顶":
             Navigator.pop(context);
-            await widget.onPin?.call(widget.data!.id, false);
+            await widget.onPin?.call(widget.data.id!, false);
           default:
             break;
         }
@@ -373,8 +373,8 @@ class _TopicState extends State<Topic> {
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(10)),
         border: Border.all(
-          color: widget.data?.pin == 0 ? Colors.black : Colors.green,
-          width: widget.data?.pin == 0 ? 1 : 3,
+          color: widget.data.pin == 0 ? Colors.black : Colors.green,
+          width: widget.data.pin == 0 ? 1 : 3,
         ),
       ),
       child: Padding(
@@ -435,7 +435,7 @@ class _TopicState extends State<Topic> {
                         Text(
                           RelativeDateFormat.format(
                               DateTime.fromMillisecondsSinceEpoch(
-                                  widget.data.updatedAt * 1000)),
+                                  widget.data.updatedAt! * 1000)),
                           style: const TextStyle(
                             color: Color(0xFFAAAAAA),
                             fontSize: 12.5,
@@ -479,7 +479,7 @@ class _TopicState extends State<Topic> {
             //中部区域：标题
             Container(
               margin: const EdgeInsets.only(right: 10),
-              child: Text(widget.data!.title,
+              child: Text(widget.data.title!,
                   textAlign: TextAlign.start,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
@@ -494,7 +494,7 @@ class _TopicState extends State<Topic> {
             Container(
               margin: const EdgeInsets.only(right: 10),
               child: Text(
-                widget.data.content,
+                widget.data.content!,
                 textAlign: TextAlign.start,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
@@ -567,7 +567,7 @@ class _TopicState extends State<Topic> {
     //     arguments: (widget.data!["source_id"] ?? widget.data!["topic_id"]),
     //   );
     // }
-    widget.onTap!(widget.data.id);
+    widget.onTap!(widget.data.id!);
   }
 
   @override

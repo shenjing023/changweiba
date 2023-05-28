@@ -1,4 +1,6 @@
+import 'package:changweiba/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../utils/style.dart';
 import '../../utils/shared_preferences.dart';
@@ -41,6 +43,11 @@ class HomeDrawer extends StatelessWidget {
 
   HomeDrawer({super.key});
 
+  void clearLogin() {
+    Storage().prefs.remove("refreshToken");
+    Storage().prefs.remove("accessToken");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -64,7 +71,7 @@ class HomeDrawer extends StatelessWidget {
                       style: CWConstant.largeTextWhite,
                     ),
                     accountEmail: const Text(
-                      "---",
+                      "消灭权限暴政，世界属于肠胃",
                       style: CWConstant.normalTextLight,
                     ),
                     currentAccountPicture: GestureDetector(
@@ -73,7 +80,7 @@ class HomeDrawer extends StatelessWidget {
                       child: const CircleAvatar(
                         //圆形图标控件
                         backgroundImage:
-                            NetworkImage(GSYICons.DEFAULT_REMOTE_PIC),
+                            AssetImage("assets/images/default.png"),
                       ),
                     ),
                     decoration: BoxDecoration(
@@ -105,7 +112,10 @@ class HomeDrawer extends StatelessWidget {
                         text: "退出登录",
                         color: Colors.redAccent,
                         textColor: CWColors.textWhite,
-                        onPress: () {},
+                        onPress: () {
+                          clearLogin();
+                          Get.offAllNamed(Routes.login);
+                        },
                       ),
                       onTap: () {}),
                 ],

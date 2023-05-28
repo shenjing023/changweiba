@@ -53,6 +53,7 @@ Future<AuthResponse?> signUp(String username, String password) async {
       "accessToken": result.data!["action"]["accessToken"],
       "refreshToken": result.data!["action"]["refreshToken"],
     };
+    gqlClient.setHeader("auth", result.data!["action"]["accessToken"]);
   }
   return authResponse;
 }
@@ -97,6 +98,7 @@ Future<AuthResponse?> signIn(String username, String password) async {
       "accessToken": result.data!["action"]["accessToken"],
       "refreshToken": result.data!["action"]["refreshToken"],
     };
+    gqlClient.setHeader("auth", result.data!["action"]["accessToken"]);
   }
   return authResponse;
 }
@@ -137,6 +139,7 @@ Future<AuthResponse?> refreshAuthToken(String refreshToken) async {
       "accessToken": result.data!["action"]["accessToken"],
       "refreshToken": result.data!["action"]["refreshToken"],
     };
+    gqlClient.setHeader("auth", result.data!["action"]["accessToken"]);
   }
   return authResponse;
 }

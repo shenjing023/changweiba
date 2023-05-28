@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
   final _pageController = PageController();
 
   var iconData = <IconData>[
-    Icons.home,
+    Icons.trending_up_sharp,
     Icons.catching_pokemon_sharp,
     Icons.do_not_disturb,
   ];
