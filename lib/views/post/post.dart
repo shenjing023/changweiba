@@ -54,12 +54,10 @@ class _PostPageState extends State<PostPage> {
   }
 
   Future<void> manuallyUpdateData() async {
-    debugPrint("1 postpage");
     currentPage = 1;
     controller.needLoadMore = true;
     SmartDialog.showLoading();
     var items = await getMyPosts(currentPage, 10);
-    debugPrint("2 postpage");
     if (items.isEmpty) {
       SmartDialog.dismiss();
       return;
