@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 
 import '../../api/stock.dart';
 import '../../models/pull_load.dart';
+import '../../routes.dart';
 import '../../widget/pull_load_widget.dart';
 import 'stock_item.dart';
 import '../../utils/common_utils.dart';
@@ -244,6 +245,10 @@ class _WatchlistPageState extends State<WatchlistPage> {
         return Obx(() => StockItemCard(
               c.dataList[index],
               onLongPress: onItemLongPress,
+              onTap: (symbol, name) => {
+                Get.toNamed(Routes.chart,
+                    arguments: <String, String>{"symbol": symbol, "name": name})
+              },
             ));
       },
       onRefresh: requestRefresh,

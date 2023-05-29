@@ -26,14 +26,12 @@ class PostDetail extends StatefulWidget {
 class _PostDetailState extends State<PostDetail> {
   Post data = Post();
   List<dynamic>? comment = [];
-  bool? load_done = false;
+  bool? loadDone = false;
   var loading = false;
   var showBackToTop = false;
-  int? total_num = 0; //评论总数
   String uploadFileAid = "";
   var replyId = 0;
-  int stick_num = 0;
-  double bottom_safeArea = 10;
+  double bottomSafeArea = 10;
   bool editing = false; //是否处于编辑状态
   bool isBlack = false;
   bool isInvalid = false; //帖子是否失效
@@ -129,7 +127,7 @@ class _PostDetailState extends State<PostDetail> {
   }
 
   void _getComment() async {
-    if (loading || load_done!) return; //控制因为网络过慢反复请求问题
+    if (loading || loadDone!) return; //控制因为网络过慢反复请求问题
     loading = true;
     setState(() {});
     loading = false;
@@ -331,7 +329,7 @@ class _PostDetailState extends State<PostDetail> {
       Container(
         height: editing
             ? 250
-            : 60 + (Platform.isIOS ? bottom_safeArea : getBottomSafeArea()),
+            : 60 + (Platform.isIOS ? bottomSafeArea : getBottomSafeArea()),
       )
     ]);
     return tmp;

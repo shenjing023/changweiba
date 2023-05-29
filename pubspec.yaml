@@ -83,6 +83,7 @@ flutter:
     - assets/icons/
     - assets/depth.json
     - assets/chatData.json
+    - assets/k_line.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

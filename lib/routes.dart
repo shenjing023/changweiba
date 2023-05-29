@@ -1,5 +1,4 @@
 import 'package:changweiba/views/post/post_new.dart';
-import 'package:changweiba/views/post/test.dart';
 import 'package:get/get.dart';
 
 // import 'views/home/home.dart';
@@ -31,7 +30,7 @@ class AppPages {
     ),
     GetPage(
       name: Routes.chart,
-      page: () => const KChartPage(),
+      page: () => KChartPage(),
     ),
     GetPage(
       name: Routes.search,
