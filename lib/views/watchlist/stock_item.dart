@@ -5,7 +5,7 @@ import '../../models/stock.dart';
 
 class StockItemCard extends StatelessWidget {
   final StockItem data;
-  final Function(String, String)? onTap;
+  final Function(StockItem)? onTap;
   final Function(String, String)? onLongPress;
 
   StockItemCard(this.data, {this.onLongPress, this.onTap});
@@ -29,7 +29,7 @@ class StockItemCard extends StatelessWidget {
         onLongPress?.call(data.symbol, data.name);
       },
       onTap: () {
-        onTap?.call(data.symbol, data.name);
+        onTap?.call(data);
       },
       child: Container(
         padding: const EdgeInsets.all(8),

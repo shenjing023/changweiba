@@ -7,21 +7,28 @@ class StockItem {
   double? riseFallRate;
   // 持仓建议
   final int? bull;
+  // 短期趋势
+  final String? short;
+
+  final int? id;
 
   StockItem(this.name, this.symbol,
-      {this.latestPrice, this.riseFallRate, this.bull});
+      {this.latestPrice, this.riseFallRate, this.bull, this.short, this.id});
 
   Map<String, dynamic> toJson() => {
         'name': name,
         'symbol': symbol,
         'latestPrice': latestPrice,
         'riseFallRate': riseFallRate,
-        'bull': bull
+        'bull': bull,
+        'short': short,
+        'id': id
       };
 
   @override
   String toString() {
-    return 'StockItem: {name: $name, symbol: $symbol, latestPrice: $latestPrice, riseFallRate: $riseFallRate, bull: $bull}';
+    return """StockItem: {name: $name, symbol: $symbol, latestPrice: $latestPrice, 
+      riseFallRate: $riseFallRate, bull: $bull, short: $short, id: $id}""";
   }
 
   set price(double value) {
@@ -130,14 +137,17 @@ class SubscribedStocksNodes {
   String? symbol;
   String? name;
   int? bull;
+  String? short;
 
-  SubscribedStocksNodes({this.id, this.symbol, this.name, this.bull});
+  SubscribedStocksNodes(
+      {this.id, this.symbol, this.name, this.bull, this.short});
 
   SubscribedStocksNodes.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     symbol = json['symbol'];
     name = json['name'];
     bull = json['bull'];
+    short = json['short'];
   }
 
   Map<String, dynamic> toJson() {
@@ -146,6 +156,7 @@ class SubscribedStocksNodes {
     data['symbol'] = symbol;
     data['name'] = name;
     data['bull'] = bull;
+    data['short'] = short;
     return data;
   }
 }
@@ -238,5 +249,90 @@ class XQStockData {
     data['high'] = high;
     data['low'] = low;
     return data;
+  }
+}
+
+class StockTrade {
+  List<StockTradeNodes>? nodes;
+  int? totalCount;
+  int? id;
+
+  StockTrade({this.nodes, this.totalCount, this.id});
+
+  StockTrade.fromJson(Map<String, dynamic> json) {
+    if (json['nodes'] != null) {
+      nodes = <StockTradeNodes>[];
+      json['nodes'].forEach((v) {
+        nodes!.add(StockTradeNodes.fromJson(v));
+      });
+    }
+    totalCount = json['totalCount'];
+    id = json['id'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (nodes != null) {
+      data['nodes'] = nodes!.map((v) => v.toJson()).toList();
+    }
+    data['totalCount'] = totalCount;
+    data['id'] = id;
+    return data;
+  }
+
+  @override
+  String toString() {
+    return 'StockTrade{nodes: $nodes, totalCount: $totalCount, id: $id}';
+  }
+}
+
+class StockTradeNodes {
+  String? date;
+  double? open;
+  double? close;
+  double? max;
+  double? min;
+  int? bull;
+  String? short;
+  int? volume;
+
+  StockTradeNodes(
+      {this.date,
+      this.open,
+      this.close,
+      this.max,
+      this.min,
+      this.bull,
+      this.short,
+      this.volume});
+
+  StockTradeNodes.fromJson(Map<String, dynamic> json) {
+    date = json['date'];
+    open = json['open'];
+    close = json['close'];
+    max = json['max'];
+    min = json['min'];
+    bull = json['bull'];
+    short = json['short'];
+    volume = json['volume'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['date'] = date;
+    data['open'] = open;
+    data['close'] = close;
+    data['max'] = max;
+    data['min'] = min;
+    data['bull'] = bull;
+    data['short'] = short;
+    data['volume'] = volume;
+    return data;
+  }
+
+  @override
+  String toString() {
+    return """StockTradeNodes{date: $date, open: $open, close: $close, max: $max, 
+      min: $min, bull: $bull, short: $short, volume: $volume}""";
   }
 }

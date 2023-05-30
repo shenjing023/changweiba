@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 // import 'views/home/home.dart';
 import 'views/login/login.dart';
-import 'views/chart/k_chart.dart';
+import 'views/chart/chart.dart';
 import 'views/home/home.dart';
 import 'views/post/post_detail.dart';
 import 'views/search/search.dart';
@@ -30,7 +30,7 @@ class AppPages {
     ),
     GetPage(
       name: Routes.chart,
-      page: () => KChartPage(),
+      page: () => ChartPage(),
     ),
     GetPage(
       name: Routes.search,

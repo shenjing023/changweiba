@@ -135,7 +135,11 @@ class _WatchlistPageState extends State<WatchlistPage> {
           if (resp.data.nodes!.isNotEmpty) {
             for (var item in resp.data.nodes!) {
               items.add(StockItem(item.name!, item.symbol!,
-                  latestPrice: 0, riseFallRate: 0, bull: item.bull!));
+                  latestPrice: 0,
+                  riseFallRate: 0,
+                  bull: item.bull!,
+                  short: item.short!,
+                  id: item.id!));
             }
           }
         }
@@ -245,9 +249,10 @@ class _WatchlistPageState extends State<WatchlistPage> {
         return Obx(() => StockItemCard(
               c.dataList[index],
               onLongPress: onItemLongPress,
-              onTap: (symbol, name) => {
-                Get.toNamed(Routes.chart,
-                    arguments: <String, String>{"symbol": symbol, "name": name})
+              onTap: (item) => {
+                Get.toNamed(Routes.chart, arguments: <String, StockItem>{
+                  "data": item,
+                })
               },
             ));
       },

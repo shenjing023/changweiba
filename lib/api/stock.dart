@@ -102,6 +102,7 @@ Future<BaseResponse<SubscribedStocks>> subscribedStocks() async {
           symbol
           name
           bull
+          short
         }
         totalCount
       }
@@ -192,4 +193,54 @@ Future<XQStock?> getStockQuoteData(String symbol) async {
   );
   // debugPrint("get stock quote data: ${data?.toJson().toString()}");
   return data;
+}
+
+Future<BaseResponse<StockTrade>> stockTrades(int stockId) async {
+  const stockTradesStr = r'''
+    query StockTrades($stockId:Int!){
+      action: stockTrades(stockId:$stockId){
+        nodes{
+          date
+          open
+          close
+          max
+          min
+          bull
+          short
+          volume
+        }
+        totalCount
+        id
+      }
+    }
+    ''';
+  final QueryOptions options = QueryOptions(
+      document: gql(stockTradesStr),
+      fetchPolicy: FetchPolicy.cacheAndNetwork,
+      variables: <String, int>{
+        'stockId': stockId,
+      });
+
+  var gqlClient = GetIt.I.get<GQLClient>();
+  final QueryResult result = await gqlClient.query(
+    options,
+    onTimeout: () => throw Exception("request timeout"),
+  );
+
+  var resp = BaseResponse(200, "", StockTrade());
+  if (result.hasException) {
+    debugPrint("subscribeStock exception: $result");
+    if (result.exception!.graphqlErrors.isEmpty) {
+      resp.code = 500;
+      resp.message = "server internal error";
+    } else {
+      for (var e in result.exception!.graphqlErrors) {
+        resp.code = e.extensions!["code"];
+        resp.message = e.message;
+      }
+    }
+  } else {
+    resp.data = StockTrade.fromJson(result.data!["action"]);
+  }
+  return resp;
 }
