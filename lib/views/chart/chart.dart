@@ -22,15 +22,15 @@ class ChartPage extends StatefulWidget {
 }
 
 class _ChartPageState extends State<ChartPage> {
-  List datas = [];
+  // List datas = [];
   List klineDatas = [];
   String bullRate = "0.0";
 
   @override
   void initState() {
     // getData();
-    // getMockMinuteData();
-    getMockKlineData();
+    // getMockKlineData();
+    getTradeData();
     super.initState();
   }
 
@@ -46,67 +46,77 @@ class _ChartPageState extends State<ChartPage> {
           )
         ],
       ),
-      body: ListView(
-        children: <Widget>[
-          Container(
-            width: double.infinity,
-            height: 90,
-            margin: const EdgeInsets.all(8),
-            child:
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text.rich(TextSpan(children: [
-                const TextSpan(
-                    text: "持仓建议: ",
-                    style: TextStyle(fontSize: 18, color: Colors.black)),
-                TextSpan(
-                  text: consts.bull[widget.data!.bull],
-                  style: const TextStyle(
-                    fontSize: 20,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
+      body: klineDatas.isEmpty
+          ? const Center(
+              child: Text(
+              "暂无数据",
+              style: TextStyle(fontSize: 20),
+            ))
+          : ListView(
+              children: <Widget>[
+                Container(
+                  width: double.infinity,
+                  height: 90,
+                  margin: const EdgeInsets.all(8),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text.rich(TextSpan(children: [
+                          const TextSpan(
+                              text: "持仓建议: ",
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.black)),
+                          TextSpan(
+                            text: consts.bull[widget.data!.bull],
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ])),
+                        Text.rich(TextSpan(children: [
+                          const TextSpan(
+                              text: "短期趋势: ",
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black)),
+                          TextSpan(
+                            text: widget.data!.short,
+                            style: const TextStyle(
+                                fontSize: 18, color: Colors.black),
+                          ),
+                        ])),
+                        Text.rich(TextSpan(children: [
+                          const TextSpan(
+                              text: "胜率: ",
+                              style:
+                                  TextStyle(fontSize: 18, color: Colors.black)),
+                          TextSpan(
+                            text: "$bullRate%",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ])),
+                      ]),
                 ),
-              ])),
-              Text.rich(TextSpan(children: [
-                const TextSpan(
-                    text: "短期趋势: ",
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black)),
-                TextSpan(
-                  text: widget.data!.short,
-                  style: const TextStyle(fontSize: 18, color: Colors.black),
+                const Divider(
+                  height: 1,
+                  color: Colors.grey,
                 ),
-              ])),
-              Text.rich(TextSpan(children: [
-                const TextSpan(
-                    text: "胜率: ",
-                    style: TextStyle(fontSize: 18, color: Colors.black)),
-                TextSpan(
-                  text: "$bullRate%",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
+                KLineChart(
+                  datas: klineDatas,
                 ),
-              ])),
-            ]),
-          ),
-          const Divider(
-            height: 1,
-            color: Colors.grey,
-          ),
-          KLineChart(
-            datas: klineDatas,
-          ),
-          const Divider(
-            height: 15,
-            color: Colors.grey,
-          ),
-        ],
-      ),
+                const Divider(
+                  height: 15,
+                  color: Colors.grey,
+                ),
+              ],
+            ),
     );
   }
 
@@ -209,7 +219,11 @@ class _ChartPageState extends State<ChartPage> {
       SmartDialog.showToast("internal server or network error");
     }
     SmartDialog.dismiss();
+    if (klineDatas.isEmpty) {
+      return;
+    }
     ChartDataUtil.calculate(klineDatas);
+    calculateBullRate();
     setState(() {});
   }
 
