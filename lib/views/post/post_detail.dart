@@ -228,12 +228,12 @@ class _PostDetailState extends State<PostDetail> {
                           ),
                         ),
                         Container(height: 1),
-                        data.updatedAt == null
+                        data.createdAt == null
                             ? Container()
                             : Text(
                                 RelativeDateFormat.format(
                                     DateTime.fromMillisecondsSinceEpoch(
-                                        data.updatedAt! * 1000)),
+                                        data.createdAt! * 1000)),
                                 style: const TextStyle(
                                   color: Color(0xFFAAAAAA),
                                   fontSize: 12.5,
