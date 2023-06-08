@@ -56,7 +56,7 @@ class _ChartPageState extends State<ChartPage> {
               children: <Widget>[
                 Container(
                   width: double.infinity,
-                  height: 90,
+                  height: 100,
                   margin: const EdgeInsets.all(8),
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,7 +215,7 @@ class _ChartPageState extends State<ChartPage> {
         SmartDialog.showToast(resp.message);
       }
     } catch (e) {
-      debugPrint(e.toString());
+      debugPrintStack(label: e.toString());
       SmartDialog.showToast("internal server or network error");
     }
     SmartDialog.dismiss();

@@ -308,10 +308,10 @@ class StockTradeNodes {
 
   StockTradeNodes.fromJson(Map<String, dynamic> json) {
     date = json['date'];
-    open = json['open'];
-    close = json['close'];
-    max = json['max'];
-    min = json['min'];
+    open = json['open'].toDouble();
+    close = json['close'].toDouble();
+    max = json['max'].toDouble();
+    min = json['min'].toDouble();
     bull = json['bull'];
     short = json['short'];
     volume = json['volume'];
