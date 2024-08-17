@@ -1,51 +1,11 @@
-import 'package:changweiba/api/auth.dart';
-import 'package:changweiba/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get_navigation/src/router_report.dart';
-import 'package:get_it/get_it.dart';
 
-import 'api/graphql.dart';
-import 'utils/style.dart';
-import 'utils/common_utils.dart';
-import 'models/auth.dart';
-import 'utils/shared_preferences.dart';
+import 'page/home/home.dart';
+import 'page/login/login.dart';
+import 'page/post/post_detail.dart';
 
-// debug cmd
-// flutter run -d chrome --web-hostname localhost --web-port 5050
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await initialization(null);
-
+void main() {
   runApp(const MyApp());
-}
-
-void initNetwork() {
-  const String uri = "http://172.20.211.254:8020/graphql";
-
-  GetIt.I.registerLazySingleton<GQLClient>(() => GQLClient(uri: uri));
-}
-
-Future initialization(BuildContext? context) async {
-  await Storage().init();
-  String? rToken = Storage().prefs.getString("refreshToken");
-  initNetwork();
-  if (rToken != null) {
-    var response = await refreshAuthToken(rToken);
-    if (response!.code == 200) {
-      Storage().prefs.setString("accessToken", response.data!["accessToken"]!);
-      Storage()
-          .prefs
-          .setString("refreshToken", response.data!["refreshToken"]!);
-      Storage().prefs.setBool("isAuthenticated", true);
-    } else {
-      Storage().prefs.setBool("isAuthenticated", false);
-    }
-  } else {
-    Storage().prefs.setBool("isAuthenticated", false);
-  }
 }
 
 class MyApp extends StatelessWidget {
@@ -54,67 +14,107 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    bool isAuthenticated = Storage().prefs.getBool("isAuthenticated") ?? false;
-    // put authController here
-    Get.lazyPut(() => AuthController());
-    // return GetMaterialApp(
-    //   title: '肠胃吧',
-    //   debugShowCheckedModeBanner: false,
-    //   theme: CommonUtils.getThemeData(CWColors.primarySwatch),
-    //   // theme: ThemeData(
-    //   //   // This is the theme of your application.
-    //   //   //
-    //   //   // Try running your application with "flutter run". You'll see the
-    //   //   // application has a blue toolbar. Then, without quitting the app, try
-    //   //   // changing the primarySwatch below to Colors.green and then invoke
-    //   //   // "hot reload" (press "r" in the console where you ran "flutter run",
-    //   //   // or simply save your changes to "hot reload" in a Flutter IDE).
-    //   //   // Notice that the counter didn't reset back to zero; the application
-    //   //   // is not restarted.
-    //   //   primarySwatch: Colors.green,
-    //   // ),
-    //   initialRoute: isAuthenticated ? Routes.home : Routes.login,
-    //   getPages: AppPages.routes,
-    //   builder: FlutterSmartDialog.init(),
-    //   navigatorObservers: [FlutterSmartDialog.observer, GetXRouterObserver()],
-    // );
-    return ScreenUtilInit(
-        designSize: const Size(750, 1334),
-        builder: (context, child) => GetMaterialApp(
-              title: '肠胃吧',
-              debugShowCheckedModeBanner: false,
-              theme: CommonUtils.getThemeData(CWColors.primarySwatch),
-              // theme: ThemeData(
-              //   // This is the theme of your application.
-              //   //
-              //   // Try running your application with "flutter run". You'll see the
-              //   // application has a blue toolbar. Then, without quitting the app, try
-              //   // changing the primarySwatch below to Colors.green and then invoke
-              //   // "hot reload" (press "r" in the console where you ran "flutter run",
-              //   // or simply save your changes to "hot reload" in a Flutter IDE).
-              //   // Notice that the counter didn't reset back to zero; the application
-              //   // is not restarted.
-              //   primarySwatch: Colors.green,
-              // ),
-              initialRoute: isAuthenticated ? Routes.home : Routes.login,
-              getPages: AppPages.routes,
-              builder: FlutterSmartDialog.init(),
-              navigatorObservers: [
-                FlutterSmartDialog.observer,
-                GetXRouterObserver()
-              ],
-            ));
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: '肠胃吧',
+      theme: ThemeData(
+        primaryColor: Colors.blue[700],
+        scaffoldBackgroundColor: Colors.grey[100],
+      ),
+      initialRoute: '/',
+      routes: {
+        '/': (ctx) => HomeScreen(),
+        '/post': (ctx) => PostDetailScreen(),
+        '/auth': (ctx) => AuthScreen(),
+      },
+    );
   }
 }
 
-class GetXRouterObserver extends NavigatorObserver {
-  @override
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    RouterReportManager.reportCurrentRoute(route);
-  }
+// class MyHomePage extends StatefulWidget {
+//   const MyHomePage({super.key, required this.title});
 
-  @override
-  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) async {
-    RouterReportManager.reportRouteDispose(route);
-  }
-}
+//   // This widget is the home page of your application. It is stateful, meaning
+//   // that it has a State object (defined below) that contains fields that affect
+//   // how it looks.
+
+//   // This class is the configuration for the state. It holds the values (in this
+//   // case the title) provided by the parent (in this case the App widget) and
+//   // used by the build method of the State. Fields in a Widget subclass are
+//   // always marked "final".
+
+//   final String title;
+
+//   @override
+//   State<MyHomePage> createState() => _MyHomePageState();
+// }
+
+// class _MyHomePageState extends State<MyHomePage> {
+//   int _counter = 0;
+
+//   void _incrementCounter() {
+//     setState(() {
+//       // This call to setState tells the Flutter framework that something has
+//       // changed in this State, which causes it to rerun the build method below
+//       // so that the display can reflect the updated values. If we changed
+//       // _counter without calling setState(), then the build method would not be
+//       // called again, and so nothing would appear to happen.
+//       _counter++;
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // This method is rerun every time setState is called, for instance as done
+//     // by the _incrementCounter method above.
+//     //
+//     // The Flutter framework has been optimized to make rerunning build methods
+//     // fast, so that you can just rebuild anything that needs updating rather
+//     // than having to individually change instances of widgets.
+//     return Scaffold(
+//       appBar: AppBar(
+//         // TRY THIS: Try changing the color here to a specific color (to
+//         // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+//         // change color while the other colors stay the same.
+//         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+//         // Here we take the value from the MyHomePage object that was created by
+//         // the App.build method, and use it to set our appbar title.
+//         title: Text(widget.title),
+//       ),
+//       body: Center(
+//         // Center is a layout widget. It takes a single child and positions it
+//         // in the middle of the parent.
+//         child: Column(
+//           // Column is also a layout widget. It takes a list of children and
+//           // arranges them vertically. By default, it sizes itself to fit its
+//           // children horizontally, and tries to be as tall as its parent.
+//           //
+//           // Column has various properties to control how it sizes itself and
+//           // how it positions its children. Here we use mainAxisAlignment to
+//           // center the children vertically; the main axis here is the vertical
+//           // axis because Columns are vertical (the cross axis would be
+//           // horizontal).
+//           //
+//           // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
+//           // action in the IDE, or press "p" in the console), to see the
+//           // wireframe for each widget.
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: <Widget>[
+//             const Text(
+//               'You have pushed the button this many times:',
+//             ),
+//             Text(
+//               '$_counter',
+//               style: Theme.of(context).textTheme.headlineMedium,
+//             ),
+//           ],
+//         ),
+//       ),
+//       floatingActionButton: FloatingActionButton(
+//         onPressed: _incrementCounter,
+//         tooltip: 'Increment',
+//         child: const Icon(Icons.add),
+//       ), // This trailing comma makes auto-formatting nicer for build methods.
+//     );
+//   }
+// }
