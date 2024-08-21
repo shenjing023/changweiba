@@ -13,11 +13,13 @@ class CommentList extends StatelessWidget {
     // Add more mock comments here
   ];
 
+  CommentList({super.key});
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: comments.length,
       itemBuilder: (context, index) {
         return CommentItem(comment: comments[index]);
@@ -29,14 +31,14 @@ class CommentList extends StatelessWidget {
 class CommentItem extends StatelessWidget {
   final Map<String, dynamic> comment;
 
-  CommentItem({required this.comment});
+  const CommentItem({super.key, required this.comment});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -45,24 +47,24 @@ class CommentItem extends StatelessWidget {
                 CircleAvatar(
                   backgroundImage: NetworkImage(comment['avatar']),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   comment['author'],
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(comment['content']),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               comment['time'],
-              style: TextStyle(color: Colors.grey),
+              style: const TextStyle(color: Colors.grey),
             ),
             if (comment['replies'].isNotEmpty) ...[
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               ...comment['replies'].map((reply) => Padding(
-                    padding: EdgeInsets.only(left: 16, top: 8),
+                    padding: const EdgeInsets.only(left: 16, top: 8),
                     child: CommentItem(comment: reply),
                   )),
             ],

@@ -1,11 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:get_it/get_it.dart';
 
+import 'api/graphql.dart';
 import 'page/home/home.dart';
 import 'page/login/login.dart';
 import 'page/post/post_detail.dart';
+import 'util/shared_preferences.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initialization(null);
+  runApp(const ProviderScope(child: MyApp()));
+}
+
+void initNetwork() {
+  const String uri = "http://127.0.0.1:8020/graphql";
+
+  GetIt.I.registerLazySingleton<GQLClient>(() => GQLClient(uri: uri));
+}
+
+Future initialization(BuildContext? context) async {
+  await Storage().init();
+  // String? rToken = Storage().prefs.getString("refreshToken");
+  initNetwork();
+  // if (rToken != null) {
+  //   var response = await refreshAuthToken(rToken);
+  //   if (response!.code == 200) {
+  //     Storage().prefs.setString("accessToken", response.data!["accessToken"]!);
+  //     Storage()
+  //         .prefs
+  //         .setString("refreshToken", response.data!["refreshToken"]!);
+  //     Storage().prefs.setBool("isAuthenticated", true);
+  //   } else {
+  //     Storage().prefs.setBool("isAuthenticated", false);
+  //   }
+  // } else {
+  //   Storage().prefs.setBool("isAuthenticated", false);
+  // }
 }
 
 class MyApp extends StatelessWidget {
@@ -25,8 +58,11 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (ctx) => HomeScreen(),
         '/post': (ctx) => PostDetailScreen(),
-        '/auth': (ctx) => AuthScreen(),
+        // '/auth': (ctx) => AuthScreen(),
       },
+      navigatorObservers: [FlutterSmartDialog.observer],
+      // here
+      builder: FlutterSmartDialog.init(),
     );
   }
 }

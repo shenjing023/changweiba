@@ -1,82 +1,97 @@
+import 'package:changweiba/api/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
-class AuthScreen extends StatefulWidget {
+import '../../api/http.dart';
+import '../../model/auth.dart';
+import '../../state/auth.dart';
+import '../../util/shared_preferences.dart';
+import 'login_form.dart';
+
+class LoginPage extends ConsumerStatefulWidget {
+  final VoidCallback? onLoginSuccess; // 添加回调参数
+
+  const LoginPage({Key? key, this.onLoginSuccess}) : super(key: key);
+
   @override
-  _AuthScreenState createState() => _AuthScreenState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _AuthScreenState extends State<AuthScreen> {
-  bool _isLogin = true;
-  final _formKey = GlobalKey<FormState>();
-  String _username = '';
-  String _password = '';
+class _LoginPageState extends ConsumerState<LoginPage>
+    with SingleTickerProviderStateMixin {
+  late TextEditingController userFormController;
+  late TextEditingController passwordFormController;
 
-  void _switchAuthMode() {
-    setState(() {
-      _isLogin = !_isLogin;
-    });
+  @override
+  void initState() {
+    super.initState();
+    String? user = Storage().prefs.getString("username");
+    String? password = Storage().prefs.getString("password");
+    userFormController = TextEditingController(text: user ?? "user1");
+    passwordFormController = TextEditingController(text: password ?? "user1");
   }
 
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      // TODO: Implement authentication logic
-      print('Username: $_username, Password: $_password');
+  void saveAccountData(String username, String password, String accessToken,
+      String refreshToken) async {
+    Storage().prefs.setString("username", username);
+    Storage().prefs.setString("password", password);
+    Storage().prefs.setString("accessToken", accessToken);
+    Storage().prefs.setString("refreshToken", refreshToken);
+  }
+
+  Future<dynamic> onRequest() async {
+    Future<AuthResponse?> Function(String, String) func;
+    if (ref.watch(authProvider) == AuthMode.signin) {
+      func = signIn;
+    } else {
+      func = signUp;
+    }
+
+    // httpTest();
+
+    SmartDialog.showLoading();
+    try {
+      var response =
+          await func(userFormController.text, passwordFormController.text);
+      SmartDialog.dismiss();
+      if (response!.code == 200) {
+        debugPrint(response.data.toString());
+        saveAccountData(userFormController.text, passwordFormController.text,
+            response.data!["accessToken"]!, response.data!["refreshToken"]!);
+        // 调用回调以关闭弹窗
+        if (widget.onLoginSuccess != null) {
+          widget.onLoginSuccess!();
+        }
+      } else {
+        SmartDialog.showToast(response.message);
+      }
+    } catch (e) {
+      SmartDialog.dismiss();
+      SmartDialog.showToast(e.toString());
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_isLogin ? '登录' : '注册'),
-      ),
-      body: Center(
-        child: Card(
-          margin: EdgeInsets.all(20),
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    decoration: InputDecoration(labelText: '用户名'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return '请输入用户名';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) => _username = value!,
-                  ),
-                  TextFormField(
-                    decoration: InputDecoration(labelText: '密码'),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return '请输入密码';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) => _password = value!,
-                  ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _submit,
-                    child: Text(_isLogin ? '登录' : '注册'),
-                  ),
-                  TextButton(
-                    onPressed: _switchAuthMode,
-                    child: Text(_isLogin ? '创建新账号' : '已有账号？登录'),
-                  ),
-                ],
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
+              minWidth: constraints.maxWidth,
             ),
+            child: IntrinsicHeight(
+                child: LoginForm(
+              key: widget.key,
+              userController: userFormController,
+              passwordController: passwordFormController,
+              onRequest: onRequest,
+            )),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
