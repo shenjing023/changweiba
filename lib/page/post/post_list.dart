@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 class PostList extends StatefulWidget {
   @override
@@ -6,246 +7,41 @@ class PostList extends StatefulWidget {
 }
 
 class _PostListState extends State<PostList> {
-  final List<Map<String, dynamic>> posts = [
-    {
-      'id': 1,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar1.jpg',
-      'content': '你记住一句话就行，强的韩国人不会留LPL\n现在打IMSI的都是两个全华班了',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'replies': 12,
-      'upvotes': 12,
-    },
-    {
-      'id': 2,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar2.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    },
-    {
-      'id': 3,
-      'author': '胜天半23子K°F',
-      'avatar': 'https://example.com/avatar3.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一23篇测试文章',
-      'replies': 1112,
-      'upvotes': 122,
-    },
+  List<Map<String, dynamic>> posts = [];
+  bool isLoading = true;
+  int currentPage = 1;
+  int itemsPerPage = 10;
+  int totalPosts = 55; // 总数据条数
 
-    {
-      'id': 4,
-      'author': '胜天半1231子K°F',
-      'avatar': 'https://example.com/avatar4.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 1232,
-      'upvotes': 1122,
-    },
+  @override
+  void initState() {
+    super.initState();
+    fetchPosts(currentPage);
+  }
 
-    {
-      'id': 5,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar5.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    },
+  Future<void> fetchPosts(int page) async {
+    setState(() {
+      isLoading = true;
+    });
 
-    {
-      'id': 6,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar6.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    },
+    // 模拟网络请求延迟
+    // await Future.delayed(Duration(seconds: 1));
 
-    {
-      'id': 7,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar7.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    },
+    // 生成假数据
+    List<Map<String, dynamic>> fetchedPosts =
+        generateFakePosts(page, itemsPerPage, totalPosts);
 
-    {
-      'id': 8,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar8.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    },
-
-    {
-      'id': 9,
-      'author': '胜天半123子K°F',
-      'avatar': 'https://example.com/avatar9.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 123,
-      'upvotes': 122,
-    },
-
-    {
-      'id': 10,
-      'author': '胜天半131子K°F',
-      'avatar': 'https://example.com/avatar10.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    },
-
-    {
-      'id': 11,
-      'author': '胜天1231半子K°F',
-      'avatar': 'https://example.com/avatar11.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 112312,
-      'upvotes': 13212,
-    },
-
-    {
-      'id': 12,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar12.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    },
-
-    {
-      'id': 13,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar13.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    },
-
-    {
-      'id': 14,
-      'author': '胜天半13子K°F',
-      'avatar': 'https://example.com/avatar14.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 1132,
-      'upvotes': 1132,
-    },
-
-    {
-      'id': 15,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar15.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 1132,
-    },
-
-    {
-      'id': 16,
-      'author': '胜天半1231子K°F',
-      'avatar': 'https://example.com/avatar16.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    },
-
-    {
-      'id': 17,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar17.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    },
-
-    {
-      'id': 18,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar18.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    },
-
-    {
-      'id': 19,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar19.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    },
-
-    {
-      'id': 20,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar20.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    },
-
-    {
-      'id': 21,
-      'author': '胜天半子K°F',
-      'avatar': 'https://example.com/avatar21.jpg',
-      'time': '2024-08-15 21:30',
-      'ip': '山东',
-      'content': '这是一篇测试文章',
-      'replies': 12,
-      'upvotes': 12,
-    }
-    // Add more mock posts here
-  ];
-
-  int currentPage = 1; // 当前页数
-  int get totalPages => (posts.length / 10).ceil(); // 计算总页数
-  final int itemsPerPage = 10; // 每页显示的最大帖子数
+    setState(() {
+      posts = fetchedPosts;
+      isLoading = false;
+    });
+  }
 
   void _nextPage() {
-    if (currentPage < totalPages) {
+    if ((currentPage * itemsPerPage) < totalPosts) {
       setState(() {
         currentPage++;
+        fetchPosts(currentPage);
       });
     }
   }
@@ -254,30 +50,29 @@ class _PostListState extends State<PostList> {
     if (currentPage > 1) {
       setState(() {
         currentPage--;
+        fetchPosts(currentPage);
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // 计算当前页要显示的帖子索引范围
-    int startIndex = (currentPage - 1) * itemsPerPage;
-    int endIndex = startIndex + itemsPerPage;
-    List<Map<String, dynamic>> currentPosts = posts.sublist(
-      startIndex,
-      endIndex > posts.length ? posts.length : endIndex,
-    );
-
     return Scaffold(
-      body: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-        child: ListView.builder(
-          itemCount: currentPosts.length,
-          itemBuilder: (context, index) {
-            return PostItem(post: currentPosts[index]);
-          },
-        ),
-      ),
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+              backgroundColor: Colors.transparent,
+            ))
+          : ScrollConfiguration(
+              behavior:
+                  ScrollConfiguration.of(context).copyWith(scrollbars: false),
+              child: ListView.builder(
+                itemCount: posts.length,
+                itemBuilder: (context, index) {
+                  return PostItem(post: posts[index]);
+                },
+              ),
+            ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -287,9 +82,10 @@ class _PostListState extends State<PostList> {
               onPressed: currentPage > 1 ? _previousPage : null,
               child: const Text('上一页'),
             ),
-            Text('第 $currentPage 页 / 共 $totalPages 页'),
+            Text('第 $currentPage 页'),
             ElevatedButton(
-              onPressed: currentPage < totalPages ? _nextPage : null,
+              onPressed:
+                  (currentPage * itemsPerPage) < totalPosts ? _nextPage : null,
               child: const Text('下一页'),
             ),
           ],
@@ -327,11 +123,6 @@ class PostItem extends StatelessWidget {
                     post['author'],
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  const Spacer(),
-                  // Text(
-                  //   'IP属地: ${post['ip']}',
-                  //   style: TextStyle(color: Colors.grey),
-                  // ),
                 ],
               ),
               const SizedBox(height: 8),
@@ -366,4 +157,45 @@ class PostItem extends StatelessWidget {
       ),
     );
   }
+}
+
+List<Map<String, dynamic>> generateFakePosts(
+    int page, int itemsPerPage, int totalPosts) {
+  final random = Random();
+  final List<String> authors = ['Alice', 'Bob', 'Charlie', 'David', 'Eve'];
+  final List<String> contents = [
+    'Hello, world!',
+    'Flutter is awesome!',
+    'Dart is a great language.',
+    'Mobile development is fun!',
+    'Learning Flutter is rewarding.'
+  ];
+  final List<String> avatars = [
+    'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.7b6bd638.8RguHecVQPgJ7-sFdko6sQ?t=1633259905',
+    'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.fb35b2a2.JhmaphYoWJySiF4Tu6x-yw?t=1586289123',
+    'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.d0652a2e.DzE0ZDnup9Z6rfLMqvjSXg?t=1717806111',
+    'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.43bde2c9.0RtX8gu1_avsgSCYqzoqqQ?t=1684009793',
+    'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.16be06ae.obeb_CVyMn-W2SgELW3POg?t=1492740074'
+  ];
+
+  List<Map<String, dynamic>> fakePosts = [];
+
+  int startIndex = (page - 1) * itemsPerPage;
+  int endIndex = min(startIndex + itemsPerPage, totalPosts);
+
+  for (int i = startIndex; i < endIndex; i++) {
+    fakePosts.add({
+      'id': i + 1,
+      'author': authors[random.nextInt(authors.length)],
+      'content': contents[random.nextInt(contents.length)],
+      'avatar': avatars[random.nextInt(avatars.length)],
+      'time': DateTime.now()
+          .subtract(Duration(days: random.nextInt(30)))
+          .toString(),
+      'upvotes': random.nextInt(100),
+      'replies': random.nextInt(50),
+    });
+  }
+
+  return fakePosts;
 }
