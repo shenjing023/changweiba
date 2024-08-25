@@ -73,7 +73,6 @@ class _SideNavigationState extends State<SideNavigation> {
           builder: (context, constraints) {
             return Center(
               child: Container(
-                color: Colors.red,
                 constraints: BoxConstraints(
                   maxWidth: 400,
                   maxHeight: constraints.maxHeight * 0.4,

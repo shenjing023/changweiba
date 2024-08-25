@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'dart:math';
+
+import '../../widget/text_editor.dart';
 
 class PostList extends StatefulWidget {
   @override
@@ -55,6 +58,36 @@ class _PostListState extends State<PostList> {
     }
   }
 
+  void addNewPost(Map<String, dynamic> newPost) {
+    setState(() {
+      posts.insert(0, newPost);
+      totalPosts++;
+    });
+  }
+
+  void _showCreatePostDialog() {
+    SmartDialog.show(builder: (_) {
+      return LayoutBuilder(builder: (context, constraints) {
+        return Center(
+          child: Container(
+            constraints: const BoxConstraints(
+              maxWidth: 1200,
+              maxHeight: 800,
+            ),
+            child: TextEditor(
+              onCreated: (newPost) {
+                SmartDialog.dismiss();
+                // addNewPost(newPost);
+              },
+              needTitleBar: true,
+              title: "创建新帖子",
+            ),
+          ),
+        );
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,6 +123,20 @@ class _PostListState extends State<PostList> {
             ),
           ],
         ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: FloatingActionButton(
+        mini: true,
+        onPressed: () {
+          _showCreatePostDialog();
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //       builder: (context) =>
+          //           CreatePostPage(onPostCreated: addNewPost)),
+          // );
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }

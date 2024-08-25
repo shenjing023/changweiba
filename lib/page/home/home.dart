@@ -106,13 +106,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: 实现新任务创建功能
-          SmartDialog.showToast("请登录");
-        },
-        child: const Icon(Icons.add),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     // TODO: 实现新任务创建功能
+      //     SmartDialog.showToast("请登录");
+      //   },
+      //   child: const Icon(Icons.add),
+      // ),
     );
   }
 }

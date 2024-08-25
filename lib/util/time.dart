@@ -13,7 +13,11 @@ class RelativeDateFormat {
 
   static String timeStamp2Str(int timestamp) {
     DateTime date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    return "${date.year}-${date.month}-${date.day} ${date.hour}:${date.minute}";
+    String month = date.month < 10 ? '0${date.month}' : '${date.month}';
+    String day = date.day < 10 ? '0${date.day}' : '${date.day}';
+    String hour = date.hour < 10 ? '0${date.hour}' : '${date.hour}';
+    String minute = date.minute < 10 ? '0${date.minute}' : '${date.minute}';
+    return "${date.year}-$month-$day $hour:$minute";
   }
 
   static String format(DateTime date) {
