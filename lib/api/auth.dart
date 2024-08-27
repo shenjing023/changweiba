@@ -31,6 +31,8 @@ Future<AuthResponse?> signUp(String username, String password) async {
   );
 
   var gqlClient = GetIt.I.get<GQLClient>();
+  // TODO: 优化
+  gqlClient.setHeader("auth", "");
 
   final QueryResult result = await gqlClient.mutate(
     options,
@@ -77,6 +79,8 @@ Future<AuthResponse?> signIn(String username, String password) async {
   );
 
   var gqlClient = GetIt.I.get<GQLClient>();
+  // TODO: 优化
+  gqlClient.setHeader("auth", "");
   final QueryResult result = await gqlClient.mutate(
     options,
     onTimeout: () => throw Exception("request timeout"),
@@ -121,6 +125,8 @@ Future<AuthResponse?> refreshAuthToken(String refreshToken) async {
   );
 
   var gqlClient = GetIt.I.get<GQLClient>();
+  // TODO: 优化
+  gqlClient.setHeader("auth", "");
   final QueryResult result = await gqlClient.client.mutate(options);
 
   if (result.hasException) {

@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get_it/get_it.dart';
 
+import 'api/auth.dart';
 import 'api/graphql.dart';
 import 'page/home/home.dart';
-import 'page/login/login.dart';
 import 'page/post/post_detail.dart';
 import 'util/shared_preferences.dart';
 
@@ -23,22 +23,22 @@ void initNetwork() {
 
 Future initialization(BuildContext? context) async {
   await Storage().init();
-  // String? rToken = Storage().prefs.getString("refreshToken");
+  String? rToken = Storage().prefs.getString("refreshToken");
   initNetwork();
-  // if (rToken != null) {
-  //   var response = await refreshAuthToken(rToken);
-  //   if (response!.code == 200) {
-  //     Storage().prefs.setString("accessToken", response.data!["accessToken"]!);
-  //     Storage()
-  //         .prefs
-  //         .setString("refreshToken", response.data!["refreshToken"]!);
-  //     Storage().prefs.setBool("isAuthenticated", true);
-  //   } else {
-  //     Storage().prefs.setBool("isAuthenticated", false);
-  //   }
-  // } else {
-  //   Storage().prefs.setBool("isAuthenticated", false);
-  // }
+  if (rToken != null) {
+    var response = await refreshAuthToken(rToken);
+    if (response!.code == 200) {
+      Storage().prefs.setString("accessToken", response.data!["accessToken"]!);
+      Storage()
+          .prefs
+          .setString("refreshToken", response.data!["refreshToken"]!);
+      Storage().prefs.setBool("isAuthenticated", true);
+    } else {
+      Storage().prefs.setBool("isAuthenticated", false);
+    }
+  } else {
+    Storage().prefs.setBool("isAuthenticated", false);
+  }
 }
 
 class MyApp extends StatelessWidget {

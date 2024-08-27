@@ -66,7 +66,7 @@ class GQLClient {
   ) {
     if (exception is ServerException) {
       // 服务端错误
-      debugPrint("server excaption: $exception");
+      debugPrint("server exception: $exception");
       // _errorsLoger(exception.parsedResponse?.errors);
     }
 

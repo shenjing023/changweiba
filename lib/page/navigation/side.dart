@@ -66,29 +66,29 @@ class _SideNavigationState extends State<SideNavigation> {
     );
   }
 
-  void _showLoginDialog() {
-    SmartDialog.show(
-      builder: (_) {
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            return Center(
-              child: Container(
-                constraints: BoxConstraints(
-                  maxWidth: 400,
-                  maxHeight: constraints.maxHeight * 0.4,
-                ),
-                child: LoginPage(
-                  onLoginSuccess: () {
-                    SmartDialog.dismiss(); // 关闭弹窗
-                  },
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+  // void _showLoginDialog() {
+  //   SmartDialog.show(
+  //     builder: (_) {
+  //       return LayoutBuilder(
+  //         builder: (context, constraints) {
+  //           return Center(
+  //             child: Container(
+  //               constraints: BoxConstraints(
+  //                 maxWidth: 400,
+  //                 maxHeight: constraints.maxHeight * 0.4,
+  //               ),
+  //               child: LoginPage(
+  //                 onLoginSuccess: () {
+  //                   SmartDialog.dismiss(); // 关闭弹窗
+  //                 },
+  //               ),
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   Widget _buildItems() {
     var activeColor = Colors.blue;
@@ -139,8 +139,7 @@ class _SideNavigationState extends State<SideNavigation> {
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
           onTap: () {
-            print("图片被点击了");
-            _showLoginDialog();
+            showLoginDialog();
           },
           child: Container(
             width: 75,

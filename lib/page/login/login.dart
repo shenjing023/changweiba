@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
-import '../../api/http.dart';
 import '../../model/auth.dart';
 import '../../state/auth.dart';
 import '../../util/shared_preferences.dart';
@@ -28,8 +27,8 @@ class _LoginPageState extends ConsumerState<LoginPage>
     super.initState();
     String? user = Storage().prefs.getString("username");
     String? password = Storage().prefs.getString("password");
-    userFormController = TextEditingController(text: user ?? "user1");
-    passwordFormController = TextEditingController(text: password ?? "user1");
+    userFormController = TextEditingController(text: user);
+    passwordFormController = TextEditingController(text: password);
   }
 
   void saveAccountData(String username, String password, String accessToken,
@@ -38,6 +37,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
     Storage().prefs.setString("password", password);
     Storage().prefs.setString("accessToken", accessToken);
     Storage().prefs.setString("refreshToken", refreshToken);
+    Storage().prefs.setBool("isAuthenticated", true);
   }
 
   Future<dynamic> onRequest() async {
@@ -56,7 +56,6 @@ class _LoginPageState extends ConsumerState<LoginPage>
           await func(userFormController.text, passwordFormController.text);
       SmartDialog.dismiss();
       if (response!.code == 200) {
-        debugPrint(response.data.toString());
         saveAccountData(userFormController.text, passwordFormController.text,
             response.data!["accessToken"]!, response.data!["refreshToken"]!);
         // 调用回调以关闭弹窗
@@ -94,4 +93,34 @@ class _LoginPageState extends ConsumerState<LoginPage>
       },
     );
   }
+}
+
+Future<void> showLoginDialog() async {
+  // TODO: 改用状态管理器
+  bool isAuthenticated = Storage().prefs.getBool("isAuthenticated") ?? false;
+  if (isAuthenticated) {
+    return;
+  }
+
+  SmartDialog.show(
+    builder: (_) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          return Center(
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: 400,
+                maxHeight: constraints.maxHeight * 0.4,
+              ),
+              child: LoginPage(
+                onLoginSuccess: () {
+                  SmartDialog.dismiss(); // 关闭弹窗
+                },
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
 }

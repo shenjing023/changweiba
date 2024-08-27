@@ -11,3 +11,6 @@
 //   GetIt.I.registerLazySingleton<GQLClient>(
 //       () => GQLClient(uri: uri, header: headers));
 // }
+
+const int tokenExpireCode = 600;
+const int tokenInvalidCode = 603;

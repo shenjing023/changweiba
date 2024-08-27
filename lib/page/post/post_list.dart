@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'dart:math';
 
+import '../../api/post.dart';
+import '../../constant/style.dart';
+import '../../model/post.dart';
+import '../../util/shared_preferences.dart';
+import '../../util/time.dart';
+import '../../widget/empty.dart';
 import '../../widget/text_editor.dart';
+import '../login/login.dart';
 
 class PostList extends StatefulWidget {
   @override
@@ -10,11 +17,11 @@ class PostList extends StatefulWidget {
 }
 
 class _PostListState extends State<PostList> {
-  List<Map<String, dynamic>> posts = [];
+  List<Post> posts = [];
   bool isLoading = true;
   int currentPage = 1;
   int itemsPerPage = 10;
-  int totalPosts = 55; // 总数据条数
+  int totalPosts = 0; // 总数据条数
 
   @override
   void initState() {
@@ -22,21 +29,46 @@ class _PostListState extends State<PostList> {
     fetchPosts(currentPage);
   }
 
-  Future<void> fetchPosts(int page) async {
-    setState(() {
-      isLoading = true;
-    });
+  Future<List<Post>> _fetchPosts(int page, int pageSize) async {
+    SmartDialog.showLoading();
+    List<Post> items = [];
+    try {
+      var resp = await getAllPosts(page, pageSize);
+      if (resp.code == 200) {
+        if (resp.data.nodes != null) {
+          if (resp.data.nodes!.isNotEmpty) {
+            for (var item in resp.data.nodes!) {
+              items.add(item);
+            }
+          }
+          totalPosts = resp.data.totalCount!;
+        }
+      } else {
+        SmartDialog.showToast(resp.message);
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      SmartDialog.showToast("internal server or network error");
+    } finally {
+      SmartDialog.dismiss();
+    }
+    return items;
+  }
 
-    // 模拟网络请求延迟
-    // await Future.delayed(Duration(seconds: 1));
+  Future<void> fetchPosts(int page) async {
+    // setState(() {
+    //   isLoading = true;
+    // });
+
+    // // 模拟网络请求延迟
+    // await Future.delayed(Duration(seconds: 2));
 
     // 生成假数据
-    List<Map<String, dynamic>> fetchedPosts =
-        generateFakePosts(page, itemsPerPage, totalPosts);
+    List<Post> fetchedPosts = await _fetchPosts(page, itemsPerPage);
 
     setState(() {
       posts = fetchedPosts;
-      isLoading = false;
+      // isLoading = false;
     });
   }
 
@@ -58,14 +90,36 @@ class _PostListState extends State<PostList> {
     }
   }
 
-  void addNewPost(Map<String, dynamic> newPost) {
-    setState(() {
-      posts.insert(0, newPost);
-      totalPosts++;
+  Future<void> addNewPost(Map<String, dynamic> request) async {
+    newPost(
+      request['title'],
+      request['content'],
+    ).then((value) {
+      if (value.code == 200) {
+        SmartDialog.showToast("新建帖子成功");
+        if (currentPage == 1) {
+          fetchPosts(currentPage);
+        }
+      } else {
+        // if (value.code == 600 || value.code == 603) {
+        //   SmartDialog.showToast("请重新登录");
+        // showLoginDialog();
+        // } else {
+        SmartDialog.showToast("新建帖子失败");
+        // }
+      }
+    }).onError((error, stackTrace) {
+      print("error: $error");
+      SmartDialog.showToast("新建帖子失败");
     });
   }
 
-  void _showCreatePostDialog() {
+  Future<void> _showCreatePostDialog() async {
+    await showLoginDialog();
+    bool isAuthenticated = Storage().prefs.getBool("isAuthenticated") ?? false;
+    if (!isAuthenticated) {
+      return;
+    }
     SmartDialog.show(builder: (_) {
       return LayoutBuilder(builder: (context, constraints) {
         return Center(
@@ -75,9 +129,9 @@ class _PostListState extends State<PostList> {
               maxHeight: 800,
             ),
             child: TextEditor(
-              onCreated: (newPost) {
+              onCreated: (result) {
                 SmartDialog.dismiss();
-                // addNewPost(newPost);
+                addNewPost(result);
               },
               needTitleBar: true,
               title: "创建新帖子",
@@ -91,11 +145,8 @@ class _PostListState extends State<PostList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-              backgroundColor: Colors.transparent,
-            ))
+      body: posts.isEmpty
+          ? const EmptyWidget()
           : ScrollConfiguration(
               behavior:
                   ScrollConfiguration.of(context).copyWith(scrollbars: false),
@@ -143,7 +194,7 @@ class _PostListState extends State<PostList> {
 }
 
 class PostItem extends StatelessWidget {
-  final Map<String, dynamic> post;
+  final Post post;
 
   const PostItem({super.key, required this.post});
 
@@ -153,7 +204,7 @@ class PostItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: InkWell(
         onTap: () {
-          Navigator.pushNamed(context, '/post', arguments: post['id']);
+          Navigator.pushNamed(context, '/post', arguments: post.id);
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -163,37 +214,35 @@ class PostItem extends StatelessWidget {
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundImage: NetworkImage(post['avatar']),
+                    backgroundImage: NetworkImage(post.user!.avatar!),
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    post['author'],
+                    post.user!.nickname,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              Text(post['content']),
+              Text(post.title!),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    post['time'],
-                    style: const TextStyle(color: Colors.grey),
-                  ),
+                  Text(RelativeDateFormat.timeStamp2Str(post.updatedAt!),
+                      style: commentTimeStyle),
                   Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.thumb_up),
-                        onPressed: () {
-                          // TODO: Implement upvote functionality
-                        },
-                      ),
-                      Text('${post['upvotes']}'),
+                      // IconButton(
+                      //   icon: const Icon(Icons.thumb_up),
+                      //   onPressed: () {
+                      //     // TODO: Implement upvote functionality
+                      //   },
+                      // ),
+                      // Text('${post.upvotes!}'),
                       const SizedBox(width: 16),
                       const Icon(Icons.comment),
-                      Text('${post['replies']}'),
+                      Text('${post.replyCount!}'),
                     ],
                   ),
                 ],
@@ -218,11 +267,16 @@ List<Map<String, dynamic>> generateFakePosts(
     'Learning Flutter is rewarding.'
   ];
   final List<String> avatars = [
-    'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.7b6bd638.8RguHecVQPgJ7-sFdko6sQ?t=1633259905',
-    'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.fb35b2a2.JhmaphYoWJySiF4Tu6x-yw?t=1586289123',
-    'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.d0652a2e.DzE0ZDnup9Z6rfLMqvjSXg?t=1717806111',
-    'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.43bde2c9.0RtX8gu1_avsgSCYqzoqqQ?t=1684009793',
-    'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.16be06ae.obeb_CVyMn-W2SgELW3POg?t=1492740074'
+    // 'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.7b6bd638.8RguHecVQPgJ7-sFdko6sQ?t=1633259905',
+    // 'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.fb35b2a2.JhmaphYoWJySiF4Tu6x-yw?t=1586289123',
+    // 'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.d0652a2e.DzE0ZDnup9Z6rfLMqvjSXg?t=1717806111',
+    // 'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.43bde2c9.0RtX8gu1_avsgSCYqzoqqQ?t=1684009793',
+    // 'https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.16be06ae.obeb_CVyMn-W2SgELW3POg?t=1492740074',
+    'https://images2.imgbox.com/2b/7b/oSiwD7s7_o.jpg',
+    'https://thumbs2.imgbox.com/10/b9/QczUmHlM_t.jpg',
+    'https://thumbs2.imgbox.com/41/50/gky4xYjJ_t.jpg',
+    'https://thumbs2.imgbox.com/fd/ea/4OD0kAmq_t.jpg',
+    'https://thumbs2.imgbox.com/45/78/A105RLJe_t.jpg'
   ];
 
   List<Map<String, dynamic>> fakePosts = [];

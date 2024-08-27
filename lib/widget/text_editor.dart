@@ -5,12 +5,14 @@ class TextEditor extends StatefulWidget {
   final Function(Map<String, dynamic>) onCreated;
   final String title;
   final bool needTitleBar;
+  final int titleMaxLength;
 
   const TextEditor(
       {super.key,
       required this.onCreated,
       required this.title,
-      this.needTitleBar = false});
+      this.needTitleBar = false,
+      this.titleMaxLength = 25});
 
   @override
   _TextEditorState createState() => _TextEditorState();
@@ -56,6 +58,7 @@ class _TextEditorState extends State<TextEditor> {
                         contentPadding: EdgeInsets.all(16.0),
                       ),
                       onChanged: (_) => setState(() {}),
+                      maxLength: widget.titleMaxLength,
                     ),
                   if (widget.needTitleBar) const SizedBox(height: 16),
                   Expanded(
