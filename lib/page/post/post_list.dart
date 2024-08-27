@@ -20,7 +20,7 @@ class _PostListState extends State<PostList> {
   List<Post> posts = [];
   bool isLoading = true;
   int currentPage = 1;
-  int itemsPerPage = 10;
+  int itemsPerPage = 50;
   int totalPosts = 0; // 总数据条数
 
   @override

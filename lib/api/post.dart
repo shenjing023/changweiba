@@ -189,7 +189,7 @@ Future<BaseResponse<int>> newComment(int postId, String content) async {
 
   var resp = BaseResponse(200, "", 0);
   if (result.hasException) {
-    debugPrint("new post exception: $result");
+    debugPrint("new comment exception: $result");
     if (result.exception!.graphqlErrors.isEmpty) {
       resp.code = 500;
       resp.message = "server internal error";
@@ -205,16 +205,17 @@ Future<BaseResponse<int>> newComment(int postId, String content) async {
   return resp;
 }
 
-Future<BaseResponse<Post>> getPostDetail(int postId) async {
+Future<BaseResponse<Post>> getPostDetail(
+    int postId, int page, int pageSize) async {
   const getPostDetailStr = r'''
-    query GetPostDetail($postId:Int!){
+    query GetPostDetail($postId:Int!,$page:Int!,$pageSize:Int!){
       action: post(postId:$postId){
         id
         title
         content
         updatedAt
         createdAt
-        comments(page:1,pageSize:100){
+        comments(page:$page,pageSize:$pageSize){
           nodes{
             id
             content
@@ -241,6 +242,8 @@ Future<BaseResponse<Post>> getPostDetail(int postId) async {
       document: gql(getPostDetailStr),
       variables: <String, int>{
         'postId': postId,
+        'page': page,
+        'pageSize': pageSize,
       },
       fetchPolicy: FetchPolicy.networkOnly);
   var gqlClient = GetIt.I.get<GQLClient>();
