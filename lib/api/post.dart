@@ -217,6 +217,7 @@ Future<BaseResponse<Post>> getPostDetail(
         createdAt
         comments(page:$page,pageSize:$pageSize){
           nodes{
+            postId
             id
             content
             postId
@@ -227,6 +228,18 @@ Future<BaseResponse<Post>> getPostDetail(
       		    name
       		    avatar
       		  }
+            replies(page: 1, pageSize: 100) {
+              nodes {
+                id
+                content
+                createdAt
+                user {
+                  id
+                  name
+                  avatar
+                }
+              }
+            }
           }
           totalCount
         }
@@ -318,6 +331,95 @@ Future<BaseResponse<AllPosts>> getAllPosts(int page, int pageSize) async {
     }
   } else {
     resp.data = AllPosts.fromJson(result.data!["action"]);
+  }
+  return resp;
+}
+
+Future<BaseResponse<int>> newReply(
+    int postId, int commentId, String content, int parentId) async {
+  const newReplyStr = r'''
+    mutation NewReply($postId:Int!,$commentId:Int!,$content:String!,$parentId:Int){
+      action: newReply(input:{postId:$postId,commentId:$commentId,content:$content,parentId:$parentId})
+    }
+    ''';
+  final MutationOptions options =
+      MutationOptions(document: gql(newReplyStr), variables: <String, dynamic>{
+    'postId': postId,
+    'content': content,
+    'commentId': commentId,
+    'parentId': parentId,
+  });
+
+  var gqlClient = GetIt.I.get<GQLClient>();
+  final QueryResult result = await gqlClient.mutate(
+    options,
+    onTimeout: () => throw Exception("request timeout"),
+  );
+
+  var resp = BaseResponse(0, "", 0);
+  if (result.hasException) {
+    debugPrint("new comment exception: $result");
+    if (result.exception!.graphqlErrors.isEmpty) {
+      resp.code = 500;
+      resp.message = "server internal error";
+    } else {
+      for (var e in result.exception!.graphqlErrors) {
+        resp.code = e.extensions!["code"];
+        resp.message = e.message;
+      }
+    }
+  } else {
+    resp.code = 200;
+    resp.data = result.data!["action"];
+  }
+  return resp;
+}
+
+Future<BaseResponse<Replies>> getReplies(int commentId) async {
+  const getPostsStr = r'''
+    query GetReplies($commentId:Int!){
+      action: replies(commentId: $commentId,page:1,pageSize:100) {
+        nodes {
+          id
+          content
+          createdAt
+          user{
+            id
+            name
+            avatar
+          }
+        }
+        totalCount
+      }
+    }
+    ''';
+  final QueryOptions options = QueryOptions(
+      document: gql(getPostsStr),
+      variables: <String, dynamic>{
+        'commentId': commentId,
+      },
+      fetchPolicy: FetchPolicy.networkOnly);
+  var gqlClient = GetIt.I.get<GQLClient>();
+  final QueryResult result = await gqlClient.query(
+    options,
+    onTimeout: () => throw Exception("request timeout"),
+  );
+
+  var resp = BaseResponse(0, "", Replies());
+  if (result.hasException) {
+    debugPrint("getReplies exception: $result");
+    if (result.exception!.graphqlErrors.isEmpty) {
+      resp.code = 500;
+      resp.message = "server internal error";
+    } else {
+      for (var e in result.exception!.graphqlErrors) {
+        resp.code = e.extensions!["code"];
+        resp.message = e.message;
+      }
+    }
+  } else {
+    resp.code = 200;
+    resp.data = Replies.fromJson(result.data!["action"]);
   }
   return resp;
 }

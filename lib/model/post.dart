@@ -153,7 +153,7 @@ class Comment {
     floor = json['floor'];
     replies =
         json['replies'] != null ? Replies.fromJson(json['replies']) : null;
-    postId = json['post_id'];
+    postId = json['postId'];
   }
 
   Map<String, dynamic> toJson() {
@@ -168,7 +168,7 @@ class Comment {
     if (replies != null) {
       data['replies'] = replies!.toJson();
     }
-    data['post_id'] = postId;
+    data['postId'] = postId;
     return data;
   }
 
@@ -204,7 +204,7 @@ class Reply {
     user = json['user'] != null ? User.fromJson(json['user']) : null;
     parent = json['parent'] != null ? Reply.fromJson(json['parent']) : null;
     floor = json['floor'];
-    commentId = json['comment_id'];
+    commentId = json['commentId'];
   }
 
   Map<String, dynamic> toJson() {
@@ -219,7 +219,7 @@ class Reply {
       data['parent'] = parent!.toJson();
     }
     data['floor'] = floor;
-    data['comment_id'] = commentId;
+    data['commentId'] = commentId;
     return data;
   }
 

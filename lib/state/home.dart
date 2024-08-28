@@ -41,7 +41,7 @@ class MainState {
 @Riverpod(keepAlive: true)
 class IsSidebarOpen extends _$IsSidebarOpen {
   @override
-  bool build() => true;
+  bool build() => false;
 
   void change() {
     state = !state;

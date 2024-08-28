@@ -1,5 +1,7 @@
+import 'package:changweiba/router/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:math';
 
 import '../../api/post.dart';
@@ -56,19 +58,10 @@ class _PostListState extends State<PostList> {
   }
 
   Future<void> fetchPosts(int page) async {
-    // setState(() {
-    //   isLoading = true;
-    // });
-
-    // // 模拟网络请求延迟
-    // await Future.delayed(Duration(seconds: 2));
-
-    // 生成假数据
     List<Post> fetchedPosts = await _fetchPosts(page, itemsPerPage);
 
     setState(() {
       posts = fetchedPosts;
-      // isLoading = false;
     });
   }
 
@@ -204,7 +197,8 @@ class PostItem extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: InkWell(
         onTap: () {
-          Navigator.pushNamed(context, '/post', arguments: post.id);
+          // Navigator.pushNamed(context, '/post', arguments: post.id);
+          context.go('/post/${post.id}');
         },
         child: Padding(
           padding: const EdgeInsets.all(16),

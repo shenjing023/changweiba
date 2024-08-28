@@ -116,7 +116,7 @@ Future<AuthResponse?> refreshAuthToken(String refreshToken) async {
       }
     }
   ''';
-  AuthResponse authResponse = AuthResponse(200, "", null);
+  AuthResponse authResponse = AuthResponse(0, "", null);
   final MutationOptions options = MutationOptions(
     document: gql(refreshAuthTokenStr),
     variables: <String, String>{
@@ -130,7 +130,7 @@ Future<AuthResponse?> refreshAuthToken(String refreshToken) async {
   final QueryResult result = await gqlClient.client.mutate(options);
 
   if (result.hasException) {
-    debugPrint("exception: $result");
+    debugPrint("refreshAuthToken exception: ${result.exception}");
     if (result.exception!.graphqlErrors.isEmpty) {
       authResponse.code = 500;
       authResponse.message = "server internal error";
@@ -147,5 +147,29 @@ Future<AuthResponse?> refreshAuthToken(String refreshToken) async {
     };
     gqlClient.setHeader("auth", result.data!["action"]["accessToken"]);
   }
+
+  // try {
+  //   if (result.hasException) {
+  //     if (result.exception!.graphqlErrors.isEmpty) {
+  //       authResponse.code = 500;
+  //       authResponse.message = "server internal error";
+  //     } else {
+  //       for (var e in result.exception!.graphqlErrors) {
+  //         authResponse.code = e.extensions!["code"];
+  //         authResponse.message = e.message;
+  //       }
+  //     }
+  //     debugPrint("refreshAuthToken exception: $authResponse");
+  //   } else {
+  //     authResponse.data = {
+  //       "accessToken": result.data!["action"]["accessToken"],
+  //       "refreshToken": result.data!["action"]["refreshToken"],
+  //     };
+  //     gqlClient.setHeader("auth", result.data!["action"]["accessToken"]);
+  //   }
+  // } catch (e) {
+  //   debugPrint("refreshAuthToken exception: $e");
+  // }
+
   return authResponse;
 }

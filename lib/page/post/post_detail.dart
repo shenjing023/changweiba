@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
+import '../../api/post.dart';
 import '../../constant/style.dart';
 import '../../util/time.dart';
 import '../../widget/text_editor.dart';
@@ -79,8 +80,8 @@ for the formatted Markdown view in the demo.
 final ShotContent = "asdsad手打收到u发客户就卡死风格和";
 
 class PostDetailScreen extends StatefulWidget {
-  int? postID;
-  PostDetailScreen({Key? key}) : super(key: key);
+  final int postID;
+  PostDetailScreen({Key? key, required this.postID}) : super(key: key);
 
   @override
   _PostDetailScreenState createState() => _PostDetailScreenState();
@@ -90,8 +91,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   List<Widget?> dataWidget = [];
 
   int currentPage = 1;
-  int itemsPerPage = 10;
-  int totalComments = 55; // 总评论数
+  int itemsPerPage = 100;
+  int totalComments = 0; // 总评论数
 
   late Post data;
 
@@ -100,109 +101,184 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   @override
   void initState() {
     super.initState();
-    initData();
+    // initData();
+    fetchData();
     // 模拟获取评论数据
     // fetchComments(currentPage);
-    dataWidget.add(PostTitle(title: data.title));
-    dataWidget.add(PostContent(
-        content: data.content!, user: data.user!, createdAt: data.createdAt!));
-    dataWidget.addAll(commentItems);
+    // dataWidget.add(PostTitle(title: data.title));
+    // dataWidget.add(PostContent(
+    //     content: data.content!, user: data.user!, createdAt: data.createdAt!));
+    // dataWidget.addAll(commentItems);
   }
 
-  void initData() {
-    data = Post(
-        id: 111,
-        title: "测试标题",
-        content: Content,
-        user: User("测试用户", 11,
-            "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        updatedAt: DateTime.now().millisecondsSinceEpoch,
-        comments: Comments(nodes: [
-          Comment(
-            id: 1,
-            floor: 2,
-            createdAt: DateTime.now().millisecondsSinceEpoch,
-            content:
-                "技部三六九等拉克丝建档立卡速度加啊送i \n  连多兰都打不过，但是打lpl那几个就是手到擒来暗杀是客户的电脑卡上的卡号打开睡了多久啊是快乐到家啊是假的啦设计大赛就离开洒家离开东京按理说发生发撒科技部三六九等拉克丝建档立卡速度加啊送i  \n 连多兰都打不过，但是打lpl那几个就是手到擒来暗杀是客户的电脑卡上的卡号打开睡了多久啊是快乐到家啊是假的啦设计大赛就离开洒家离开东京按理说发生发撒科技部三六九等",
-            user: User("评论用户1", 11,
-                "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
-          ),
-          Comment(
-              id: 11,
-              floor: 3,
-              createdAt: DateTime.now().millisecondsSinceEpoch,
-              content: "评论内容1",
-              user: User("评论用户1", 11,
-                  "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
-              replies: Replies(nodes: [
-                Reply(
-                  id: 1111,
-                  content: "回复内容1",
-                  user: User("回复用户1", 11,
-                      "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
-                  createdAt: DateTime.now().millisecondsSinceEpoch,
-                ),
-              ])),
-          Comment(
-              id: 11,
-              floor: 3,
-              createdAt: DateTime.now().millisecondsSinceEpoch,
-              content: "评论内容1",
-              user: User("评论用户1", 11,
-                  "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
-              replies: Replies(nodes: [
-                Reply(
-                  id: 1111,
-                  content: "去年赢过，单纯直接打穿，不知道为啥kin去了g赢过",
-                  user: User("回复用户1", 11,
-                      "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
-                  createdAt: DateTime.now().millisecondsSinceEpoch,
-                ),
-                Reply(
-                  id: 1111,
-                  content:
-                      "去年赢过，单纯直接打穿，不知道为啥kin去了g赢过，去年赢过，单纯直接打穿，不知道为啥kin去了g赢过，去年赢过，单纯直接打穿，不知道为啥kin去了g赢过",
-                  user: User("回复用户1", 11,
-                      "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
-                  createdAt: DateTime.now().millisecondsSinceEpoch,
-                ),
-              ])),
-          Comment(
-            id: 1,
-            floor: 2,
-            createdAt: DateTime.now().millisecondsSinceEpoch,
-            content:
-                "技部三六九等拉克丝建档立卡速度加啊送i \n  连多兰都打不过，但是打lpl那几个就是手到擒来暗杀是客户的电脑卡上的卡号打开睡了多久啊是快乐到家啊是假的啦设计大赛就离开洒家离开东京按理说发生发撒科技部三六九等拉克丝建档立卡速度加啊送i  \n 连多兰都打不过，但是打lpl那几个就是手到擒来暗杀是客户的电脑卡上的卡号打开睡了多久啊是快乐到家啊是假的啦设计大赛就离开洒家离开东京按理说发生发撒科技部三六九等",
-            user: User("评论用户1", 11,
-                "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
-          ),
-        ]));
-
+  Future<void> fetchData() async {
+    data = await _fetchData();
+    if (data.id == 0) {
+      return;
+    }
+    commentItems.clear();
     if (data.comments != null) {
-      for (var item in data.comments!.nodes!) {
-        List<ReplyItem> replies = [];
-        if (item.replies != null) {
-          for (var item2 in item.replies!.nodes!) {
-            replies.add(ReplyItem(
-              username: item2.user!.nickname,
-              content: item2.content!,
-              time: item2.createdAt!,
-              avatar: item2.user!.avatar,
-            ));
+      totalComments = data.comments!.totalCount!;
+      if (data.comments!.nodes != null) {
+        for (var item in data.comments!.nodes!) {
+          List<ReplyItem> replies = [];
+          if (item.replies != null) {
+            if (item.replies!.nodes != null) {
+              for (var item2 in item.replies!.nodes!) {
+                replies.add(ReplyItem(
+                  username: item2.user!.nickname,
+                  content: item2.content!,
+                  time: item2.createdAt!,
+                  avatar: item2.user!.avatar,
+                ));
+              }
+            }
           }
+          commentItems.add(CommentItem(
+            floor: item.floor!,
+            username: item.user!.nickname,
+            content: item.content!,
+            avatar: item.user!.avatar,
+            time: item.createdAt!,
+            replies: replies,
+            postID: item.postId!,
+            id: item.id!,
+          ));
         }
-        commentItems.add(CommentItem(
-          floor: item.floor!,
-          username: item.user!.nickname,
-          content: item.content!,
-          avatar: item.user!.avatar,
-          time: item.createdAt!,
-          replies: replies,
-        ));
       }
     }
+
+    setState(() {
+      dataWidget.clear();
+      dataWidget.add(PostTitle(title: data.title));
+      if (currentPage == 1) {
+        dataWidget.add(PostContent(
+            content: data.content!,
+            user: data.user!,
+            createdAt: data.createdAt!));
+      }
+      dataWidget.addAll(commentItems);
+    });
   }
+
+  Future<Post> _fetchData() async {
+    SmartDialog.showLoading();
+    Post result = Post();
+    try {
+      var resp = await getPostDetail(widget.postID, currentPage, itemsPerPage);
+      if (resp.code == 200) {
+        if (resp.data.id != 0) {
+          result = resp.data;
+        } else {
+          SmartDialog.showToast("internal server or network error");
+        }
+      } else {
+        SmartDialog.showToast("internal server or network error");
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      SmartDialog.showToast("internal server or network error");
+    } finally {
+      SmartDialog.dismiss();
+    }
+
+    return result;
+  }
+
+  // void initData() {
+  //   data = Post(
+  //       id: 111,
+  //       title: "测试标题",
+  //       content: Content,
+  //       user: User("测试用户", 11,
+  //           "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
+  //       createdAt: DateTime.now().millisecondsSinceEpoch,
+  //       updatedAt: DateTime.now().millisecondsSinceEpoch,
+  //       comments: Comments(nodes: [
+  //         Comment(
+  //           id: 1,
+  //           floor: 2,
+  //           createdAt: DateTime.now().millisecondsSinceEpoch,
+  //           content:
+  //               "技部三六九等拉克丝建档立卡速度加啊送i \n  连多兰都打不过，但是打lpl那几个就是手到擒来暗杀是客户的电脑卡上的卡号打开睡了多久啊是快乐到家啊是假的啦设计大赛就离开洒家离开东京按理说发生发撒科技部三六九等拉克丝建档立卡速度加啊送i  \n 连多兰都打不过，但是打lpl那几个就是手到擒来暗杀是客户的电脑卡上的卡号打开睡了多久啊是快乐到家啊是假的啦设计大赛就离开洒家离开东京按理说发生发撒科技部三六九等",
+  //           user: User("评论用户1", 11,
+  //               "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
+  //         ),
+  //         Comment(
+  //             id: 11,
+  //             floor: 3,
+  //             createdAt: DateTime.now().millisecondsSinceEpoch,
+  //             content: "评论内容1",
+  //             user: User("评论用户1", 11,
+  //                 "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
+  //             replies: Replies(nodes: [
+  //               Reply(
+  //                 id: 1111,
+  //                 content: "回复内容1",
+  //                 user: User("回复用户1", 11,
+  //                     "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
+  //                 createdAt: DateTime.now().millisecondsSinceEpoch,
+  //               ),
+  //             ])),
+  //         Comment(
+  //             id: 11,
+  //             floor: 3,
+  //             createdAt: DateTime.now().millisecondsSinceEpoch,
+  //             content: "评论内容1",
+  //             user: User("评论用户1", 11,
+  //                 "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
+  //             replies: Replies(nodes: [
+  //               Reply(
+  //                 id: 1111,
+  //                 content: "去年赢过，单纯直接打穿，不知道为啥kin去了g赢过",
+  //                 user: User("回复用户1", 11,
+  //                     "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
+  //                 createdAt: DateTime.now().millisecondsSinceEpoch,
+  //               ),
+  //               Reply(
+  //                 id: 1111,
+  //                 content:
+  //                     "去年赢过，单纯直接打穿，不知道为啥kin去了g赢过，去年赢过，单纯直接打穿，不知道为啥kin去了g赢过，去年赢过，单纯直接打穿，不知道为啥kin去了g赢过",
+  //                 user: User("回复用户1", 11,
+  //                     "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
+  //                 createdAt: DateTime.now().millisecondsSinceEpoch,
+  //               ),
+  //             ])),
+  //         Comment(
+  //           id: 1,
+  //           floor: 2,
+  //           createdAt: DateTime.now().millisecondsSinceEpoch,
+  //           content:
+  //               "技部三六九等拉克丝建档立卡速度加啊送i \n  连多兰都打不过，但是打lpl那几个就是手到擒来暗杀是客户的电脑卡上的卡号打开睡了多久啊是快乐到家啊是假的啦设计大赛就离开洒家离开东京按理说发生发撒科技部三六九等拉克丝建档立卡速度加啊送i  \n 连多兰都打不过，但是打lpl那几个就是手到擒来暗杀是客户的电脑卡上的卡号打开睡了多久啊是快乐到家啊是假的啦设计大赛就离开洒家离开东京按理说发生发撒科技部三六九等",
+  //           user: User("评论用户1", 11,
+  //               "https://gss0.bdstatic.com/6LZ1dD3d1sgCo2Kml5_Y_D3/sys/portrait/item/tb.1.b76c4090.oObStJYFWjUrtGciolLY8w?t=1620484586"),
+  //         ),
+  //       ]));
+
+  //   if (data.comments != null) {
+  //     for (var item in data.comments!.nodes!) {
+  //       List<ReplyItem> replies = [];
+  //       if (item.replies != null) {
+  //         for (var item2 in item.replies!.nodes!) {
+  //           replies.add(ReplyItem(
+  //             username: item2.user!.nickname,
+  //             content: item2.content!,
+  //             time: item2.createdAt!,
+  //             avatar: item2.user!.avatar,
+  //           ));
+  //         }
+  //       }
+  //       commentItems.add(CommentItem(
+  //         floor: item.floor!,
+  //         username: item.user!.nickname,
+  //         content: item.content!,
+  //         avatar: item.user!.avatar,
+  //         time: item.createdAt!,
+  //         replies: replies,
+  //       ));
+  //     }
+  //   }
+  // }
 
   Future<void> fetchComments(int page) async {
     // 模拟网络请求延迟
@@ -270,11 +346,26 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     // data = Post(id: 111, title: "");
   }
 
+  Future<void> addComment(String content) async {
+    try {
+      var resp = await newComment(widget.postID, content);
+      if (resp.code == 200) {
+        SmartDialog.showToast("评论成功");
+        fetchData();
+      } else {
+        SmartDialog.showToast("评论失败");
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      SmartDialog.showToast("评论失败");
+    }
+  }
+
   void _nextPage() {
     if ((currentPage * itemsPerPage) < totalComments) {
       setState(() {
         currentPage++;
-        fetchComments(currentPage);
+        fetchData();
       });
     }
   }
@@ -283,7 +374,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     if (currentPage > 1) {
       setState(() {
         currentPage--;
-        fetchComments(currentPage);
+        fetchData();
       });
     }
   }
@@ -300,7 +391,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             child: TextEditor(
               onCreated: (result) {
                 SmartDialog.dismiss();
-                print(result);
+                addComment(result['content']);
               },
               needTitleBar: false,
               title: "创建新评论",

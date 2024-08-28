@@ -1,3 +1,5 @@
+import 'package:changweiba/api/post.dart';
+import 'package:changweiba/model/post.dart';
 import 'package:extended_text/extended_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -13,15 +15,19 @@ class CommentItem extends StatefulWidget {
   final String content;
   final String? avatar;
   final int time;
-  final List<ReplyItem> replies;
+  List<ReplyItem> replies;
+  final int postID;
+  final int id;
 
-  const CommentItem({
+  CommentItem({
     super.key,
     required this.floor,
     required this.username,
     required this.content,
     required this.avatar,
     required this.time,
+    required this.postID,
+    required this.id,
     this.replies = const [],
   });
 
@@ -36,7 +42,62 @@ class _CommentItemState extends State<CommentItem>
   @override
   bool get wantKeepAlive => true;
 
-  void _showCreateReplyDialog() {
+  Future<void> addReply(String content) async {
+    try {
+      var resp = await newReply(widget.postID, widget.id, content, 0);
+      if (resp.code == 200) {
+        SmartDialog.showToast("评论成功");
+      } else {
+        SmartDialog.showToast("评论失败");
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      SmartDialog.showToast("评论失败");
+    }
+  }
+
+  Future<void> fetchReplyData() async {
+    Replies data = await _fetchReplyData();
+    if (data.totalCount == 0) {
+      return;
+    }
+
+    List<ReplyItem> replyItems = [];
+    if (data.nodes != null) {
+      for (var item in data.nodes!) {
+        replyItems.add(ReplyItem(
+          username: item.user!.nickname,
+          content: item.content!,
+          time: item.createdAt!,
+          avatar: item.user!.avatar,
+        ));
+      }
+    }
+    widget.replies = replyItems;
+    setState(() {});
+  }
+
+  Future<Replies> _fetchReplyData() async {
+    SmartDialog.showLoading();
+    Replies result = Replies();
+    try {
+      var resp = await getReplies(widget.id);
+      if (resp.code == 200) {
+        result = resp.data;
+      } else {
+        SmartDialog.showToast("获取回复失败");
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      SmartDialog.showToast("internal server or network error");
+    } finally {
+      SmartDialog.dismiss();
+    }
+
+    return result;
+  }
+
+  Future<void> _showCreateReplyDialog() async {
     SmartDialog.show(builder: (_) {
       return LayoutBuilder(builder: (context, constraints) {
         return Center(
@@ -46,9 +107,10 @@ class _CommentItemState extends State<CommentItem>
               maxHeight: 180,
             ),
             child: ReplyEditor(
-              onCreated: (result) {
+              onCreated: (content) async {
                 SmartDialog.dismiss();
-                print(result);
+                await addReply(content);
+                fetchReplyData();
               },
             ),
           ),
@@ -292,19 +354,19 @@ class ReplyItem extends StatelessWidget {
                         const SizedBox(
                           width: 5,
                         ),
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            child: const Text(
-                              "回复",
-                              style:
-                                  TextStyle(color: Colors.blue, fontSize: 12),
-                            ),
-                            onTap: () {
-                              _showCreateReplyDialog();
-                            },
-                          ),
-                        ),
+                        // MouseRegion(
+                        //   cursor: SystemMouseCursors.click,
+                        //   child: GestureDetector(
+                        //     child: const Text(
+                        //       "回复",
+                        //       style:
+                        //           TextStyle(color: Colors.blue, fontSize: 12),
+                        //     ),
+                        //     onTap: () {
+                        //       _showCreateReplyDialog();
+                        //     },
+                        //   ),
+                        // ),
                       ],
                     )
                   ],

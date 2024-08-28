@@ -2,16 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get_it/get_it.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'api/auth.dart';
 import 'api/graphql.dart';
 import 'page/home/home.dart';
 import 'page/post/post_detail.dart';
+import 'router/router.dart';
 import 'util/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initialization(null);
+  usePathUrlStrategy();
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -25,19 +28,26 @@ Future initialization(BuildContext? context) async {
   await Storage().init();
   String? rToken = Storage().prefs.getString("refreshToken");
   initNetwork();
-  if (rToken != null) {
-    var response = await refreshAuthToken(rToken);
-    if (response!.code == 200) {
-      Storage().prefs.setString("accessToken", response.data!["accessToken"]!);
-      Storage()
-          .prefs
-          .setString("refreshToken", response.data!["refreshToken"]!);
-      Storage().prefs.setBool("isAuthenticated", true);
+  try {
+    if (rToken != null) {
+      var response = await refreshAuthToken(rToken);
+      if (response!.code == 200) {
+        Storage()
+            .prefs
+            .setString("accessToken", response.data!["accessToken"]!);
+        Storage()
+            .prefs
+            .setString("refreshToken", response.data!["refreshToken"]!);
+        Storage().prefs.setBool("isAuthenticated", true);
+      } else {
+        Storage().prefs.setBool("isAuthenticated", false);
+      }
     } else {
       Storage().prefs.setBool("isAuthenticated", false);
     }
-  } else {
+  } catch (e) {
     Storage().prefs.setBool("isAuthenticated", false);
+    debugPrint("initialization Error: $e");
   }
 }
 
@@ -47,20 +57,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
+      routerConfig: router,
       debugShowCheckedModeBanner: false,
       title: '肠胃吧',
       theme: ThemeData(
         primaryColor: Colors.blue[700],
         scaffoldBackgroundColor: Colors.grey[100],
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (ctx) => HomeScreen(),
-        '/post': (ctx) => PostDetailScreen(),
-        // '/auth': (ctx) => AuthScreen(),
-      },
-      navigatorObservers: [FlutterSmartDialog.observer],
       // here
       builder: FlutterSmartDialog.init(),
     );
