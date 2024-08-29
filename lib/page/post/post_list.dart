@@ -1,4 +1,3 @@
-import 'package:changweiba/router/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:go_router/go_router.dart';
@@ -35,6 +34,10 @@ class _PostListState extends State<PostList> {
     SmartDialog.showLoading();
     List<Post> items = [];
     try {
+      isLoading = true;
+      // 模拟网络请求延迟
+      // await Future.delayed(Duration(seconds: Random().nextInt(3)));
+
       var resp = await getAllPosts(page, pageSize);
       if (resp.code == 200) {
         if (resp.data.nodes != null) {
@@ -53,6 +56,7 @@ class _PostListState extends State<PostList> {
       SmartDialog.showToast("internal server or network error");
     } finally {
       SmartDialog.dismiss();
+      isLoading = false;
     }
     return items;
   }
@@ -138,18 +142,32 @@ class _PostListState extends State<PostList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: posts.isEmpty
-          ? const EmptyWidget()
-          : ScrollConfiguration(
-              behavior:
-                  ScrollConfiguration.of(context).copyWith(scrollbars: false),
-              child: ListView.builder(
-                itemCount: posts.length,
-                itemBuilder: (context, index) {
-                  return PostItem(post: posts[index]);
-                },
-              ),
-            ),
+      body: isLoading
+          ? Center(child: Container())
+          : posts.isEmpty
+              ? const EmptyWidget()
+              : ScrollConfiguration(
+                  behavior: ScrollConfiguration.of(context)
+                      .copyWith(scrollbars: false),
+                  child: ListView.builder(
+                    itemCount: posts.length,
+                    itemBuilder: (context, index) {
+                      return PostItem(post: posts[index]);
+                    },
+                  ),
+                ),
+      // body: posts.isEmpty
+      //     ? const EmptyWidget()
+      //     : ScrollConfiguration(
+      //         behavior:
+      //             ScrollConfiguration.of(context).copyWith(scrollbars: false),
+      //         child: ListView.builder(
+      //           itemCount: posts.length,
+      //           itemBuilder: (context, index) {
+      //             return PostItem(post: posts[index]);
+      //           },
+      //         ),
+      //       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         child: Row(
@@ -207,8 +225,18 @@ class PostItem extends StatelessWidget {
             children: [
               Row(
                 children: [
+                  // CachedNetworkImage(
+                  //   imageUrl: post.user!.avatar!,
+                  //   placeholder: (context, url) => CircularProgressIndicator(),
+                  //   errorWidget: (context, url, error) => Icon(Icons.error),
+                  // ),
                   CircleAvatar(
-                    backgroundImage: NetworkImage(post.user!.avatar!),
+                    backgroundImage: NetworkImage(
+                      post.user!.avatar!,
+                      // headers: {
+                      //   'Access-Control-Allow-Origin': '*',
+                      // },
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Text(

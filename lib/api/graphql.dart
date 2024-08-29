@@ -31,7 +31,8 @@ class GQLClient {
     // });
     header = {
       "Accept": "application/json",
-      "Access-Control_Allow_Origin": "*",
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json',
     };
     if (header != null) {
       httpLink = HttpLink(uri, defaultHeaders: header!);
@@ -119,7 +120,8 @@ class GQLClient {
   }
 
   void setHeader(String key, String value) {
-    httpLink = HttpLink(uri, defaultHeaders: {key: value});
+    header![key] = value;
+    httpLink = HttpLink(uri, defaultHeaders: header!);
     client = GraphQLClient(
       link: Link.from([
         DedupeLink(),

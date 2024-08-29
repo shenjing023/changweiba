@@ -6,8 +6,6 @@ import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'api/auth.dart';
 import 'api/graphql.dart';
-import 'page/home/home.dart';
-import 'page/post/post_detail.dart';
 import 'router/router.dart';
 import 'util/shared_preferences.dart';
 
@@ -21,7 +19,11 @@ void main() async {
 void initNetwork() {
   const String uri = "http://127.0.0.1:8020/graphql";
 
-  GetIt.I.registerLazySingleton<GQLClient>(() => GQLClient(uri: uri));
+  try {
+    GetIt.I.registerLazySingleton<GQLClient>(() => GQLClient(uri: uri));
+  } catch (e) {
+    debugPrint("Failed to initialize GQLClient: $e");
+  }
 }
 
 Future initialization(BuildContext? context) async {

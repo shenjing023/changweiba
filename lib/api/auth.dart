@@ -14,7 +14,7 @@ Future<AuthResponse?> signUp(String username, String password) async {
       }
     }
   ''';
-  AuthResponse authResponse = AuthResponse(200, "", null);
+  AuthResponse authResponse = AuthResponse(0, "", null);
   final MutationOptions options = MutationOptions(
     document: gql(signUpStr),
     variables: <String, String>{
@@ -51,6 +51,7 @@ Future<AuthResponse?> signUp(String username, String password) async {
       }
     }
   } else {
+    authResponse.code = 200;
     authResponse.data = {
       "accessToken": result.data!["action"]["accessToken"],
       "refreshToken": result.data!["action"]["refreshToken"],
@@ -69,7 +70,7 @@ Future<AuthResponse?> signIn(String username, String password) async {
       }
     }
   ''';
-  AuthResponse authResponse = AuthResponse(200, "", null);
+  AuthResponse authResponse = AuthResponse(0, "", null);
   final MutationOptions options = MutationOptions(
     document: gql(signInStr),
     variables: <String, String>{
@@ -98,6 +99,7 @@ Future<AuthResponse?> signIn(String username, String password) async {
       }
     }
   } else {
+    authResponse.code = 200;
     authResponse.data = {
       "accessToken": result.data!["action"]["accessToken"],
       "refreshToken": result.data!["action"]["refreshToken"],
@@ -141,6 +143,7 @@ Future<AuthResponse?> refreshAuthToken(String refreshToken) async {
       }
     }
   } else {
+    authResponse.code = 200;
     authResponse.data = {
       "accessToken": result.data!["action"]["accessToken"],
       "refreshToken": result.data!["action"]["refreshToken"],

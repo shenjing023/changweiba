@@ -6,7 +6,9 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 import '../../constant/style.dart';
+import '../../util/shared_preferences.dart';
 import '../../util/time.dart';
+import '../login/login.dart';
 import 'post_detail.dart';
 
 class CommentItem extends StatefulWidget {
@@ -98,6 +100,11 @@ class _CommentItemState extends State<CommentItem>
   }
 
   Future<void> _showCreateReplyDialog() async {
+    await showLoginDialog();
+    bool isAuthenticated = Storage().prefs.getBool("isAuthenticated") ?? false;
+    if (!isAuthenticated) {
+      return;
+    }
     SmartDialog.show(builder: (_) {
       return LayoutBuilder(builder: (context, constraints) {
         return Center(
