@@ -84,6 +84,10 @@ class _TextEditorState extends State<TextEditor> {
           const VerticalDivider(width: 1),
           Expanded(
             child: Markdown(
+                imageBuilder: (uri, title, alt) {
+                  // TODO: cors
+                  return Image.network(uri.toString());
+                },
                 data: _titleController.text.isNotEmpty
                     ? "# ${_titleController.text}\n${_contentController.text}"
                     : _contentController.text),
